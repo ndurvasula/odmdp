@@ -26,10 +26,10 @@ class State():
         self.info = info
 
     """
-    Genrates the joint probability mass tensor for the kth partition
+    Genrates the joint probability mass tensor and size for the kth partition
     k - the partition number
     """
-    def getJPMF(k):
+    def decompose(k):
         jpmf = np.zeros(sh[k])
         objs = []
         freq = []
@@ -43,13 +43,12 @@ class State():
                 objs.append(i)
                 freq.append(1)
 
-        t = sum(freq)
-        freq = [x/t for x in freq]
+        freq = [x/len(parts[k]) for x in freq]
         inds = convert(objs,k)
         for i in range(diff):
             jpmf[tuple(inds[i])] = freq[i]
 
-        return jpmf
+        return jpmf, len(parts[k])
 
     """
     Converts objects in the kth partition from their original format to Z^n based on <bounds>
