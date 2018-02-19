@@ -3,7 +3,7 @@ import numpy as np
 class State():
     """
     nparts - number of partitions
-    dparts - dimension of partition (array of length nparts e.g. [2,1,3,4,5])
+    dparts - dimension of partition (array of length nparts e.g. [2,1,3,4,5]), note that elements of a partition must be 1d vectors
     P - joint probability density function over all inaccesible information
     bounds - a multidimensional array denoting the set of values that the partitioned part of the state can take on
              for example, if we have a state space with dparts = [1,2,1], we could have bounds = [[[1,2,3]],[[.1,.2],[3,4,5,6]],[["a","b","c"]]]
@@ -19,10 +19,11 @@ class State():
         self.parts = data
         self.sh = shape
         self.bounds = bounds
+        self.done = false
         
-        #State-action history in our walk so far for each partition
-        self.xhist = []
-        self.chist = []
+        #State delta history and action history in our walk so far for each partition
+        self.xhist = [[] for k in range(nparts)]
+        self.chist = [[] for k in range(nparts)]
         self.ahist = []
 
     """
@@ -43,15 +44,16 @@ class State():
                 objs.append(i)
                 freq.append(1)
 
-        freq = [x/len(self.parts[k]) for x in freq]
+        c = len(self.parts[k])
+        freq = [x/c for x in freq]
         inds = convert(objs,k)
         for i in range(diff):
             jpmf[tuple(inds[i])] = freq[i]
 
-        return jpmf, self.d[k]
+        return jpmf, c
 
     """
-    Reconstructs the state given a joint probability mass tensor and size
+    Reconstructs the state given a joint probability mass tensor and size back into original vector space
     k - the partition number
     """
     def reconstruct(jpmf, c, k):
