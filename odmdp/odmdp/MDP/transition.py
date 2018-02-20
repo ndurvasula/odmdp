@@ -5,10 +5,46 @@
 import numpy as np
 import GPy
 import application
+from math import sqrt
 
 B = 1.2 #Bounding constant on environmental change
 
-#Add xpredict (beta learning)
+def CON(alpha1,alpha2):
+    #Given two dirichlet hyperparameters, sample from their convolution
+    shape = [0]
+    for i in alpha1.shape:
+        shape.append(i)
+    con = np.empty(shape)
+    for i in range(len(alpha1)):
+        x1 = np.random.dirichlet(alpha1[i],1)
+        x2 = np.random.dirichlet(alpha2[i],1)
+
+        dx = x1-x2
+        
+
+def alpha(eps, mu, N):
+    #returns the alpha vectors for a given epsilon vector
+
+    #Compute row reduction closed form
+    var = np.empty(mu.shape)
+    s = np.sum(mu,axis=1)-mu[:,-1]
+    S = s - s**2
+    var = eps*mu*(1-mu)/S
+    var[:,-1] = eps
+
+    #Compute alpha values
+    alpha = mu**2((1-mu)/var-1/mu)
+
+    return alpha
+
+    
+
+def xpredict(state,action,k,x_k):
+    #If we have no data, sample from a CON distribution
+
+    #Use beta learning to find delta
+    
+    
 
 def cpredict(state,action,k,c_k):
 
@@ -16,11 +52,11 @@ def cpredict(state,action,k,c_k):
         #If we have no data, sample from a normal with a mean of 0 and a variance of 1
 
         delta_c = np.random.normal(0,1,1)
-        state.chist = np.append(state.chist, np.array([[delta_c]]), axis=0)
+        state.chist[k] = np.append(state.chist[k], np.array([[delta_c]]), axis=0)
         return c_k+delta_c
 
     #Use GP-MCMC to model change in size (c)
-    m = GPy.models.GPRegression(state.chist, state.ahist) #m = GPy.models.GPRegression(np.array([1,2,3,4]), np.array([2,5,7,9]))
+    m = GPy.models.GPRegression(state.chist[k], state.ahist) #m = GPy.models.GPRegression(np.array([1,2,3,4]), np.array([2,5,7,9]))
     
     #Set kernel hyperparameters to HMC output
     hmc = GPy.inference.mcmc.HMC(m,stepsize = 5e-2)
@@ -32,9 +68,9 @@ def cpredict(state,action,k,c_k):
 
     #Sample from GP
     mean, variance = m.predict(np.array([c_k]), np.array([action]))
-    delta_c = np.random.normal(mean,variance,1)
+    delta_c = np.random.normal(mean,sqrt(variance),1)
 
-    state.chist = np.append(state.chist, np.array([[delta_c]]), axis=0)
+    state.chist[k] = np.append(state.chist[k], np.array([[delta_c]]), axis=0)
 
     return c_k+delta_c
 

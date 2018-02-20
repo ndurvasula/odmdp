@@ -4,7 +4,6 @@ class State():
     """
     nparts - number of partitions
     dparts - dimension of partition (array of length nparts e.g. [2,1,3,4,5]), note that elements of a partition must be 1d vectors
-    P - joint probability density function over all inaccesible information
     bounds - a multidimensional array denoting the set of values that the partitioned part of the state can take on
              for example, if we have a state space with dparts = [1,2,1], we could have bounds = [[[1,2,3]],[[.1,.2],[3,4,5,6]],[["a","b","c"]]]
     shape - a multidimensional array denoting the number of values that the partioned part of the state can take on
@@ -15,15 +14,20 @@ class State():
     def __init__(self, nparts, dparts, P, bounds, shape, transition, data):
         self.n = nparts
         self.d = dparts
-        self.P = P
         self.parts = data
         self.sh = shape
         self.bounds = bounds
         self.done = false
         
         #State delta history and action history in our walk so far for each partition
-        self.xhist = [[] for k in range(nparts)]
-        self.chist = [[] for k in range(nparts)]
+        st = []
+        for k in sh:
+            temp = [0]
+            for i in k:
+                temp.append(i)
+            st.append(temp)
+        self.xhist = [np.empty(st[k]) for k in range(nparts)]
+        self.chist = [np.array([]) for k in range(nparts)]
         self.ahist = []
 
     """
