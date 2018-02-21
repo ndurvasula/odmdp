@@ -20,16 +20,12 @@ class Environment:
         ahist = self.state.ahist
         chist = self.state.chist
 
-        xt = []
-        ct = []
-        for i in range(self.state.nparts):
-            x,c = self.state.decompose(i)
-            xt.append(x)
-            ct.append(c)
+        for k in range(self.state.nparts):
+            x,c = self.state.decompose(k)
 
-        xhist.append(xt)
-        chist.append(ct)
-        ahist.append(action)
+            xhist[k] = np.append(xhist[k], np.array([x]), axis=0)
+            chist[k] = np.append(chist[k], np.array([[c]]), axis=0)
+            
 
         s2 = self.model(self.state,action)
         s2.xhist = xhist

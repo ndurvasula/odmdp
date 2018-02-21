@@ -101,7 +101,7 @@ def xpredict(state,action,k,x_k):
     eps_0 = np.empty([2,state.xhist[k].shape[0]])
     eps_0.fill(1)
     
-    opt = optimize.minimize(objective, eps_0, args=(state,k,x_k), method='Nelder-Mead')
+    opt = optimize.minimize(objective, eps_0, args=(state,k,x_k,), method='Nelder-Mead')
     eps1, eps2 = opt.x
 
     data_raw1 = alpha(eps1,state.xhist[k])
@@ -215,9 +215,9 @@ class OnDemandEnvironment:
     r - the reward function (inputted by user): <r(s, a, s2) = R_a(s,s')> (should be the same as in transition)
     s0 - the initial state
     """
-    def __init__(self):
+    def __init__(self,state_0):
         self.r = application.r
-        self.state = application.s0
+        self.state = state_0
     def transition(action):
         s2 = model(self.state,action)
 
