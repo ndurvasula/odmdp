@@ -11,35 +11,44 @@ B = 1.2 #Bounding constant on environmental change
 
 def CON(alpha1,alpha2):
     #Given two dirichlet hyperparameters, sample from their convolution
-    shape = [0]
-    for i in alpha1.shape:
-        shape.append(i)
-    con = np.empty(shape)
-    for i in range(len(alpha1)):
-        x1 = np.random.dirichlet(alpha1[i],1)
-        x2 = np.random.dirichlet(alpha2[i],1)
+    x1 = np.random.dirichlet(alpha1,1)
+    x2 = np.random.dirichlet(alpha2,1)
 
-        dx = x1-x2
+    dx = x1-x2
+    return dx
         
+def objective(eps,state,k):
+    #Return sum of lengthscales
+    data = alpha(state.xhist[k])
 
-def alpha(eps, mu, N):
+
+def alpha(eps, mu):
     #returns the alpha vectors for a given epsilon vector
-
-    #Compute row reduction closed form
-    var = np.empty(mu.shape)
-    s = np.sum(mu,axis=1)-mu[:,-1]
+    sh = mu.shape
+    mu = mu.reshape(sh[0],np.prod(sh[1:]))
+    print(mu.shape)
+    print(mu)
+    #Compute row reduction closed form + alpha computation
+    s = np.sum(mu[:,:-1],axis=1)
     S = s - s**2
-    var = eps*mu*(1-mu)/S
-    var[:,-1] = eps
+    print(s)
+    print(S)
+    
 
+    print(mu)
+    print(np.array([mu[i][:-1]*S[i] for i in range(sh[0])]))
     #Compute alpha values
-    alpha = mu**2((1-mu)/var-1/mu)
+    alpha = np.empty(mu.shape)
+    alpha[:,:-1] = np.array([mu[i][:-1]*S[i]/eps[i] for i in range(sh[0])]) - mu[:,:-1]
+    alpha[:,-1] = mu[:,-1]*(1-mu[:,-1])/eps - mu[:,-1]
+
+    alpha.reshape(sh)
 
     return alpha
 
     
 
-def xpredict(state,action,k,x_k):
+#def xpredict(state,action,k,x_k):
     #If we have no data, sample from a CON distribution
 
     #Use beta learning to find delta
@@ -56,12 +65,16 @@ def cpredict(state,action,k,c_k):
         return c_k+delta_c
 
     #Use GP-MCMC to model change in size (c)
-    m = GPy.models.GPRegression(state.chist[k], state.ahist) #m = GPy.models.GPRegression(np.array([1,2,3,4]), np.array([2,5,7,9]))
+    m = GPy.models.GPRegression(state.chist[k], state.ahist)
     
+    #set prior
+    m.kern.set_prior(GPy.priors.Gamma.from_EV(2.,4.))
+    m.likelihood.variance.set_prior(GPy.priors.Gamma.from_EV(2.,4.))
+
     #Set kernel hyperparameters to HMC output
     hmc = GPy.inference.mcmc.HMC(m,stepsize = 5e-2)
-    s = hmc.sample(num_samples = 1000)
-    s = s[300:] #Burn in
+    s = hmc.sample(num_samples = 200)
+    s = s[100:] #Burn in
     m.kern.variance[:] = s[:,0].mean()
     m.kern.lengthscale[:] = s[:,1].mean()
     m.likelihood.variance[:] = s[:,2].mean()
@@ -105,3 +118,9 @@ class OnDemandEnvironment:
 
         self.state = s2
         return self.r(self.state, action)
+
+
+mu = np.array([[[.1,.2],[.3,.4]],[[.1,.2],[.3,.4]]])
+print(mu)
+print(alpha(np.array([.1,.1]),mu))
+

@@ -5,13 +5,14 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>75efb6b2-14ba-48f5-b76f-07bcb0dbc7a3</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>odmdp.py</StartupFile>
+    <StartupFile>MDP/transition.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>odmdp</Name>
     <RootNamespace>odmdp</RootNamespace>
+    <IsWindowsApplication>False</IsWindowsApplication>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
