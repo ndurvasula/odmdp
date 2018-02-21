@@ -20,13 +20,7 @@ class State():
         self.done = false
         
         #State delta history and action history in our walk so far for each partition
-        st = []
-        for k in sh:
-            temp = [0]
-            for i in k:
-                temp.append(i)
-            st.append(temp)
-        self.xhist = [np.empty(st[k]) for k in range(nparts)]
+        self.xhist = [np.empty([0,np.prod(np.array(sh[k]))]) for k in range(nparts)]
         self.chist = [np.array([]) for k in range(nparts)]
         self.ahist = []
 
@@ -61,7 +55,7 @@ class State():
     k - the partition number
     """
     def reconstruct(jpmf, c, k):
-        self.parts[k] = np.array([])
+        self.parts[k] = np.empty([0,dparts[k]])
         for index, x in np.ndenumerate(jpmf):
             if round(x*c) > 0:
                 obj = []
