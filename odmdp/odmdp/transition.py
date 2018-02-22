@@ -218,7 +218,7 @@ class OnDemandEnvironment:
     def __init__(self,state_0):
         self.r = application.r
         self.state = state_0
-    def transition(action):
+    def transition(self,action):
         s2 = model(self.state,action)
 
         self.state = s2
