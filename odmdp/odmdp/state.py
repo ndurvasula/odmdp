@@ -8,19 +8,18 @@ class State():
              for example, if we have a state space with dparts = [1,2,1], we could have bounds = [[[1,2,3]],[[.1,.2],[3,4,5,6]],[["a","b","c"]]]
     shape - a multidimensional array denoting the number of values that the partioned part of the state can take on
             if we take the above example for <bounds>, we get shape = [[3],[2,4],[3]]
-    transition - a function that takes in an action and returns the next state <transition(state, action)>
-    data - the current state as an array of partitions (e.g. [np.array(~),np.array(~),...])
+   parts - the current state as an array of partitions (e.g. [np.array(~),np.array(~),...])
     """
-    def __init__(self, nparts, dparts, P, bounds, shape, transition, data):
-        self.n = nparts
-        self.d = dparts
-        self.parts = data
+    def __init__(self, nparts, dparts, bounds, shape, parts):
+        self.nparts = nparts
+        self.dparts = dparts
+        self.parts = parts
         self.sh = shape
         self.bounds = bounds
-        self.done = false
+        self.done = False
         
         #State delta history and action history in our walk so far for each partition
-        self.xhist = [np.empty([0,np.prod(np.array(sh[k]))]) for k in range(nparts)]
+        self.xhist = [np.empty([0,np.prod(np.array(self.sh[k]))]) for k in range(nparts)]
         self.chist = [np.array([]) for k in range(nparts)]
         self.ahist = []
 
@@ -28,14 +27,14 @@ class State():
     Genrates the joint probability mass tensor and size for the kth partition
     k - the partition number
     """
-    def decompose(k):
+    def decompose(self,k):
         jpmf = np.zeros(self.sh[k])
         objs = []
         freq = []
         diff = 0
 
-        for i in parts[k]:
-            if i in objs:
+        for i in self.parts[k]:
+            if any((i == x).all() for x in objs):
                 freq[objs.index(i)] += 1
             else:
                 diff += 1
@@ -44,7 +43,7 @@ class State():
 
         c = len(self.parts[k])
         freq = [x/c for x in freq]
-        inds = convert(objs,k)
+        inds = self.convert(objs,k)
         for i in range(diff):
             jpmf[tuple(inds[i])] = freq[i]
 
@@ -54,36 +53,35 @@ class State():
     Reconstructs the state given a joint probability mass tensor and size back into original vector space
     k - the partition number
     """
-    def reconstruct(jpmf, c, k):
-        self.parts[k] = np.empty([0,dparts[k]])
+    def reconstruct(self,jpmf, c, k):
+        self.parts[k] = np.empty([0,self.dparts[k]])
         for index, x in np.ndenumerate(jpmf):
             if round(x*c) > 0:
                 obj = []
-                for i in self.d[k]:
-                    obj.append(self.bounds[index[i]])
-                for i in range(round(x*c)):
-                    self.parts[k] = np.append(self.parts[k],np.array(obj))
+                for i in range(self.dparts[k]):
+                    obj.append(self.bounds[k][i][index[i]])
+                for i in range(int(np.round(x*c))):
+                    self.parts[k] = np.append(self.parts[k],np.array([obj]),axis=0)
 
     """
     Converts objects in the kth partition from their original format to Z^n based on <bounds>
     """
-    def convert(objs,k):
+    def convert(self,objs,k):
         ret = []
         for i in objs:
             next = []
-            for j in range(self.d[k]):
-                next.append(self.bounds[k][j].index(objs[j]))
+            for j in range(self.dparts[k]):
+                next.append(self.bounds[k][j].index(i[j]))
             ret.append(next)
         return ret
 
     """
     Returns the state size
     """
-    def size():
-        size = 1
-        for k in range(nparts):
-            for p in sh[k]:
-                size *= p
+    def size(self):
+        size = 0
+        for k in range(self.nparts):
+            size+=np.prod(self.parts[k].shape)
 
         return size
 
