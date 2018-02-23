@@ -70,7 +70,7 @@ def alpha(eps, mu):
     eps = abs(eps)
     
     #Compute alpha values
-    return np.array([eps[i]*(mu[i]*(1-mu[i])) for i in range(mu.shape[0])])
+    return np.array([mu[i]*eps[i] for i in range(mu.shape[0])])
 
     
 
@@ -96,9 +96,8 @@ def xpredict(state,action,k,x_k):
     #Find eps that minimizes our objective
     #Use Nelder Mead to minimize the lengthscale*variance*likelihood_variance (find best data points and hyperparameters)
 
-    #Start Nelder-Mead with epsilon array of all 1s
-    eps_0 = np.empty([2,state.xhist[k].shape[0]])
-    eps_0.fill(1)
+    #Start Nelder-Mead with a random epsilon array
+    eps_0 = np.random.uniform(low=0.001, high=100, size=[2,state.xhist[k].shape[0]])
     
     opt = optimize.minimize(objective, eps_0, args=(state,k,x_k,), method='Nelder-Mead')
     eps1, eps2 = opt.x
@@ -218,6 +217,6 @@ class OnDemandEnvironment:
         s2 = model(self.state,action)
 
         self.state = s2
-        return self.r(self.state, action)
+
 
 
