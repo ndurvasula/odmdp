@@ -1,0 +1,3 @@
+[submodule "FrozenLake/openai-solutions"]
+	path = FrozenLake/openai-solutions
+	url = https://github.com/arthurdk/openai-solutions/
