@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>75efb6b2-14ba-48f5-b76f-07bcb0dbc7a3</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>application.py</StartupFile>
+    <StartupFile>DQNagent.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
