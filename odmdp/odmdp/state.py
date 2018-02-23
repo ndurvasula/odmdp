@@ -8,7 +8,7 @@ class State():
              for example, if we have a state space with dparts = [1,2,1], we could have bounds = [[[1,2,3]],[[.1,.2],[3,4,5,6]],[["a","b","c"]]]
     shape - a multidimensional array denoting the number of values that the partioned part of the state can take on
             if we take the above example for <bounds>, we get shape = [[3],[2,4],[3]]
-   parts - the current state as an array of partitions (e.g. [np.array(~),np.array(~),...])
+    parts - the current state as an array of partitions (e.g. [np.array(~),np.array(~),...])
     """
     def __init__(self, nparts, dparts, bounds, shape, parts):
         self.nparts = nparts
@@ -16,7 +16,6 @@ class State():
         self.parts = parts
         self.sh = shape
         self.bounds = bounds
-        self.done = False
         
         #State delta history and action history in our walk so far for each partition
         self.xhist = [np.empty([0,np.prod(np.array(self.sh[k]))]) for k in range(nparts)]

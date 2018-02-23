@@ -4,7 +4,6 @@
 
 import numpy as np
 import GPy
-import application
 from math import sqrt
 from scipy import optimize
 
@@ -207,16 +206,13 @@ def model(state,action):
         
         #Reconstruct state
         state.reconstruct(nx_k,nc_k,k)
-    state.done = application.checkTermination(state)
     return state
 
 class OnDemandEnvironment:
     """
-    r - the reward function (inputted by user): <r(s, a, s2) = R_a(s,s')> (should be the same as in transition)
     s0 - the initial state
     """
     def __init__(self,state_0):
-        self.r = application.r
         self.state = state_0
     def transition(self,action):
         s2 = model(self.state,action)
