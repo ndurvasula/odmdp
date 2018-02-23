@@ -1,109 +1,79 @@
-#Modified from https://github.com/keon/deep-q-learning/blob/master/ddqn.py
-
 import random
+import tensorflow as tf
+import matplotlib.pyplot as plt
+import gym
 import numpy as np
-from collections import deque
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.optimizers import Adam
-from keras import backend as K
-import application #place model(state,action), r(state,action), and s0 in application.py
-from environment import *
-from transition import *
+from state import *
+import math
 
-EPISODES = 5000
+def parts(obs):
+    return [np.array([obs % 4, math.floor(obs/4.0)])]
 
-TESTS = 1
+def obs(parts):
+    row = parts[0][0]
+    col = parts[0][1]
+    if row < 0:
+        row = 0
+    if row > 3:
+        row = 3
+    if col < 0:
+        col = 0
+    if col > 3:
+        col = 3
 
-class DQNAgent:
-    def __init__(self, state_size, action_size, buildModel):
-        self.state_size = state_size
-        self.action_size = action_size
-        self.memory = deque(maxlen=2000)
-        self.gamma = 1    # discount rate
-        self.epsilon = 1.0  # exploration rate
-        self.epsilon_min = 0.01
-        self.epsilon_decay = 0.99
-        self.learning_rate = 0.001
-        self.model = self._build_model()
-        self.target_model = self._build_model()
-        self.update_target_model()
+    return 4*row + col
 
-    def _huber_loss(self, target, prediction):
-        # sqrt(1+error^2)-1
-        error = prediction - target
-        return K.mean(K.sqrt(1+K.square(error))-1, axis=-1)
+print("Finished imports")
 
-    def _build_model(self):
-        # Neural Net for Deep-Q learning Model
-        model = Sequential()
-        model.add(Dense(24, input_dim=self.state_size, activation='relu'))
-        model.add(Dense(24, activation='relu'))
-        model.add(Dense(self.action_size, activation='linear'))
-        model.compile(loss=self._huber_loss,
-                      optimizer=Adam(lr=self.learning_rate))
-        return model
+env = gym.make('FrozenLake-v0')
 
-    def update_target_model(self):
-        # copy weights from model to target_model
-        self.target_model.set_weights(self.model.get_weights())
+tf.reset_default_graph()
+inputs1 = tf.placeholder(shape=[1,16],dtype=tf.float32)
+W = tf.Variable(tf.random_uniform([16,4],0,0.01))
+Qout = tf.matmul(inputs1,W)
+predict = tf.argmax(Qout,1)
+nextQ = tf.placeholder(shape=[1,4],dtype=tf.float32)
 
-    def remember(self, state, action, reward, next_state, done):
-        self.memory.append((state, action, reward, next_state, done))
+loss = tf.reduce_sum(tf.square(nextQ-Qout))
+trainer = tf.train.GradientDescentOptimizer(learning_rate=0.1)
+updateModel = trainer.minimize(loss)
 
-    def act(self, state):
-        if np.random.rand() <= self.epsilon:
-            return random.randrange(self.action_size)
-        act_values = self.model.predict(state)
-        return np.argmax(act_values[0])  # returns action
+init = tf.global_variables_initializer()
 
-    def replay(self, batch_size):
-        minibatch = random.sample(self.memory, batch_size)
-        for state, action, reward, next_state, done in minibatch:
-            target = self.model.predict(state)
-            if done:
-                target[0][action] = reward
-            else:
-                a = self.model.predict(next_state)[0]
-                t = self.target_model.predict(next_state)[0]
-                target[0][action] = reward + self.gamma * t[np.argmax(a)]
-            self.model.fit(state, target, epochs=1, verbose=0)
-        if self.epsilon > self.epsilon_min:
-            self.epsilon *= self.epsilon_decay
+gamma = .99
+e = 0.1
+num_episodes = 1000
+jList = []
+rList = []
 
-    def load(self, name):
-        self.model.load_weights(name)
+with tf.Session() as sess:
+    sess.run(init)
 
-    def save(self, name):
-        self.model.save_weights(name)
+    for i in range(num_episodes):
+        s = env.reset()
+        rAll = 0
+        d = False
+        j = 0
+        while j < 99:
+            j+= 1
+            a,allQ = sess.run([predict,Qout],feed_dict={inputs1:np.identity(16)[s:s+1]})
 
+            if np.random.rand(1) < e:
+                a[0] = env.action_space.sample()
+            s1,r,d,_ = env.step(a[0])
 
-if __name__ == "__main__":
-    for iteration in range(TESTS):
-        env = Environment()
-        state_size = env.state.size()
-        agent = DQNAgent(state_size, action_size)
-        batch_size = 32
+            Q1 = sess.run(Qout,feed_dict={inputs1:np.identity(16)[s1:s1+1]})
+            maxQ1 = np.max(Q1)
+            targetQ = allQ
+            targetQ[0,a[0]] = r + gamma*maxQ1
+            _,W1 = sess.run([updateModel,W],feed_dict={inputs1:np.identity(16)[s:s+1],nextQ:targetQ})
 
-        while not env.done:
-        
-            for e in range(EPISODES):
-                oenv = OnDemandEnvironment(env.state)
-                state = np.reshape(oenv.state, [1, state_size])
-                while not oenv.done:
-                    action = agent.act(state)
-                    reward = oenv.transition(action)
-                    next_state = np.reshape(oenv.state, [1, state_size])
-                    agent.remember(state, action, reward, next_state, oenv.done)
-                    state = next_state
-                    if oenv.done:
-                        agent.update_target_model()
-                        print("episode: {}/{}, score: {}, e: {:.2}"
-                              .format(e, EPISODES, time, agent.epsilon))
-                        break
-                if len(agent.memory) > batch_size:
-                    agent.replay(batch_size)
-
-        action = agent.act(env.state)
-        env.transition(action)
-            
+            rAll += r
+            s = s1
+            if d == True:
+                e = 1./((i/50)+10)
+                break
+        jList.append(j)
+        rList.append(rAll)
+        print("Episode "+str(i)+", reward "+str(rAll)+", time "+str(j), "average "+str(sum(rList[len(rList)-101:])/100))
+    print("Percent of succesful episodes: "+str(sum(rList)/num_episodes) + "%")
