@@ -77,21 +77,26 @@ def alpha(eps, mu):
 def xpredict(state,action,k,x_k):
     #If we have no data, sample from a CON distribution
     if state.xhist.shape[0] == 0:
-        #Normally distribute alpha vectors with mean 1, std 1, truncate to positive
-        alpha1 = np.random.normal(1,1,state.xhist.shape[1])
+        #Normally distribute alpha vectors with mean, std, truncate to positive
+        MEAN = 1
+        STD = .5
+
+        alpha1 = np.random.normal(MEAN,STD,state.xhist.shape[1])
         while not np.all(np.greater(alpha1,np.zeros(alpha1.shape))):
-            alpha1 = np.random.normal(1,1,state.xhist.shape[1])
+            alpha1 = np.random.normal(1,.5,state.xhist.shape[1])
     
-        alpha2 = np.random.normal(1,1,state.xhist.shape[1])
+        alpha2 = np.random.normal(MEAN,STD,state.xhist.shape[1])
         while not np.all(np.greater(alpha2,np.zeros(alpha2.shape))):
-            alpha2 = np.random.normal(1,1,state.xhist.shape[1])
+            alpha2 = np.random.normal(MEAN,STD,state.xhist.shape[1])
         
         #Compute convolution and reshape
         deltax_k = CON(alpha1,alpha2).reshape(state.sh[k])
 
         #Compute new x_k
         nx_k = x_k+deltax_k
-        state.xhist[k] = np.append(state.xhist[k], np.array([nx_k]), axis=0)
+        state.xhist[k] = np.append(state.xhist[k], np.array([x_k]), axis=0)
+
+        return nx_k
 
     #Find eps that minimizes our objective
     #Use Nelder Mead to minimize the lengthscale*variance*likelihood_variance (find best data points and hyperparameters)
@@ -186,14 +191,15 @@ def cpredict(state,action,k,c_k):
     mean, variance = m.predict(np.array([action]))
     delta_c = np.random.normal(mean,sqrt(variance),1)
 
-    state.chist[k] = np.append(state.chist[k], np.array([[c_k]]), axis=0)
+    state.chist[k] = np.append(state.chist[k], np.array([[delta_c]]), axis=0)
 
     return c_k+delta_c
 
 def model(state,action):
     #Return a sample from our learned probability model
     for k in range(state.nparts):
-        x_k, c_k = state.decompose(k)
+        x_k = state.x[k]
+        c_k = state.c[k]
         ahist = state.ahist
 
         #Find change in probability tensor and size
@@ -206,17 +212,6 @@ def model(state,action):
         #Reconstruct state
         state.reconstruct(nx_k,nc_k,k)
     return state
-
-class OnDemandEnvironment:
-    """
-    s0 - the initial state
-    """
-    def __init__(self,state_0):
-        self.state = state_0
-    def transition(self,action):
-        s2 = model(self.state,action)
-
-        self.state = s2
 
 
 

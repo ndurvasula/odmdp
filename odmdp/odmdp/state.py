@@ -16,6 +16,14 @@ class State():
         self.parts = parts
         self.sh = shape
         self.bounds = bounds
+
+        self.x = []
+        self.c = []
+        for k in range(nparts):
+            x_k,c_k = self.decompose(k)
+            self.x.append(x_k)
+            self.c.append(c_k)
+
         
         #State delta history and action history in our walk so far for each partition
         self.xhist = [np.empty([0,np.prod(np.array(self.sh[k]))]) for k in range(nparts)]
@@ -53,6 +61,8 @@ class State():
     k - the partition number
     """
     def reconstruct(self,jpmf, c, k):
+        self.x[k] = jpmf
+        self.c[k] = c
         self.parts[k] = np.empty([0,self.dparts[k]])
         for index, x in np.ndenumerate(jpmf):
             if round(x*c) > 0:
