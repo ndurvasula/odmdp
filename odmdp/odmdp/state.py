@@ -24,11 +24,6 @@ class State():
             self.x.append(x_k)
             self.c.append(c_k)
 
-        
-        #State delta history and action history in our walk so far for each partition
-        self.xhist = [np.empty([0,np.prod(np.array(self.sh[k]))]) for k in range(nparts)]
-        self.chist = [np.array([]) for k in range(nparts)]
-        self.ahist = []
 
     """
     Genrates the joint probability mass tensor and size for the kth partition
@@ -93,6 +88,19 @@ class State():
             size+=np.prod(self.parts[k].shape)
 
         return size
+
+    """
+    Changes state data
+    """
+    def transition(parts):
+        self.parts = parts
+
+        self.x = []
+        self.c = []
+        for k in range(self.nparts):
+            x_k,c_k = self.decompose(k)
+            self.x.append(x_k)
+            self.c.append(c_k)
 
 
 
