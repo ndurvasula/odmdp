@@ -105,15 +105,9 @@ class State():
     """
     Changes JPMF
     """
-    def setJPMF(raw_jpmf):
+    def setJPMF(self,raw_jpmf):
         for k in range(self.nparts):
-            #Make all negative values 0, and evenly distribute excess mass
-            mass = ((raw_jpmf[k]<0)*raw_jpmf[k]).sum()
+            #Make all negative values 0, and scale sum to be 1
+            mass = abs(((raw_jpmf[k]<0)*raw_jpmf[k]).sum()) #negative mass
             raw_jpmf[k][raw_jpmf[k]<0] = 0
-            self.x[k] = raw_jpmf[k] + ((raw_jpmf[k]>0)*mass/(raw_jpmf[k].size-np.count_zero(raw_jpmf[k]))
-    
-
-
-
-
-
+            self.x[k] = raw_jpmf[k]/(1+mass)
