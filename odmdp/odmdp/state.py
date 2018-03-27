@@ -90,7 +90,7 @@ class State():
         return size
 
     """
-    Changes state data
+    Changes state data from new partition values
     """
     def transition(parts):
         self.parts = parts
@@ -101,6 +101,17 @@ class State():
             x_k,c_k = self.decompose(k)
             self.x.append(x_k)
             self.c.append(c_k)
+
+    """
+    Changes JPMF
+    """
+    def setJPMF(raw_jpmf):
+        for k in range(self.nparts):
+            #Make all negative values 0, and evenly distribute excess mass
+            mass = ((raw_jpmf[k]<0)*raw_jpmf[k]).sum()
+            raw_jpmf[k][raw_jpmf[k]<0] = 0
+            self.x[k] = raw_jpmf[k] + ((raw_jpmf[k]>0)*mass/(raw_jpmf[k].size-np.count_zero(raw_jpmf[k]))
+    
 
 
 
