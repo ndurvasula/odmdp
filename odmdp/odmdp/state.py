@@ -49,18 +49,18 @@ class State():
         for i in range(diff):
             jpmf[tuple(inds[i])] = freq[i]
 
-        return jpmf, c
+        return jpmf, np.array([c])
 
     """
     Reconstructs the state given a joint probability mass tensor and size back into original vector space
     k - the partition number
     """
-    def reconstruct(self,jpmf, c, k):
-        self.x[k] = jpmf
+    def reconstruct(self, jpmf, c, k):
+        self.x[k] = self.fixJPMF(jpmf)
         self.c[k] = c
         self.parts[k] = np.empty([0,self.dparts[k]])
         for index, x in np.ndenumerate(jpmf):
-            if round(x*c) > 0:
+            if np.round(x*c) > 0:
                 obj = []
                 for i in range(self.dparts[k]):
                     obj.append(self.bounds[k][i][index[i]])
@@ -103,11 +103,13 @@ class State():
             self.c.append(c_k)
 
     """
-    Changes JPMF
+    Ensures that JPMF is non-negtative
     """
-    def setJPMF(self,raw_jpmf):
+    def fixJPMF(self,raw_jpmf):
+        ret = [np.empty(raw_jpmf[k].shape) for k in range(self.nparts)]
         for k in range(self.nparts):
             #Make all negative values 0, and scale sum to be 1
             mass = abs(((raw_jpmf[k]<0)*raw_jpmf[k]).sum()) #negative mass
             raw_jpmf[k][raw_jpmf[k]<0] = 0
-            self.x[k] = raw_jpmf[k]/(1+mass)
+            ret[k] = raw_jpmf[k]/(1+mass)
+        return ret
