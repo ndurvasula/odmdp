@@ -1,21 +1,16 @@
 import numpy as np
+import application
 
 class State():
-    """
-    nparts - number of partitions
-    dparts - dimension of partition (array of length nparts e.g. [2,1,3,4,5]), note that elements of a partition must be 1d vectors
-    bounds - a multidimensional array denoting the set of values that the partitioned part of the state can take on
-             for example, if we have a state space with dparts = [1,2,1], we could have bounds = [[[1,2,3]],[[.1,.2],[3,4,5,6]],[["a","b","c"]]]
-    shape - a multidimensional array denoting the number of values that the partioned part of the state can take on
-            if we take the above example for <bounds>, we get shape = [[3],[2,4],[3]]
+    """    
     parts - the current state as an array of partitions (e.g. [np.array(~),np.array(~),...])
     """
-    def __init__(self, nparts, dparts, bounds, shape, parts):
-        self.nparts = nparts
-        self.dparts = dparts
+    def __init__(self, parts):
+        self.nparts = application.NPARTS
+        self.dparts = application.DPARTS
         self.parts = parts
-        self.sh = shape
-        self.bounds = bounds
+        self.sh = application.SHAPE
+        self.bounds = application.BOUNDS
 
         self.x = []
         self.c = []

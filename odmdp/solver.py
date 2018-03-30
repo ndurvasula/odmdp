@@ -3,20 +3,7 @@
 import numpy as np
 import GPy
 import space
-"""
-application contains all app specific code
-
-ACTION_SIZE - length of array denoting each action (all actions have shape [ACTION_SIZE,])
-SIZE_CHANGE - np array of booleans, if SIZE_CHANGE[k] is True, that means that taking an action can change the size of the kth partition
-
-class Application
-> subsolver(transition) - solves the RL problem given that transition(state,action) performs a state transition and returns the *first* action
-> explore(dxhist,chist,ahist) - generates a random action by user-chosen distribution, may utilize dxhist, chist, ahist
-> > dxhist - delta x history for all k
-> > chist - delta c history for all k
-> > ahist - action history
-"""
-from application import Application
+import application
 
 class Solver():
     """
@@ -43,13 +30,13 @@ class Solver():
         #Do we explore?
         if np.random.uniform(0,1) < self.e**self.t:
             t+= 1
-            act = Application.explore(self.dxhist,self.chist,self.ahist)
+            act = application.explore(self.dxhist,self.chist,self.ahist)
             self.ahist = np.append([act],self.ahist,axis=0)
             return act
 
         #Use the subsolver to solve the simulated environment
         t += 1
-        act = Application.subsolver(self.sample)
+        act = application.subsolver(self.sample)
         self.ahist = np.append(self.ahist,[act],axis=0)
         return act
 
@@ -108,7 +95,11 @@ class Solver():
         #Get estimated state deltas from GPs
         for k in range(state.nparts):
             s = self.XGP[k].posterior_samples_f(np.array([action]))
+
+            #Get data from GPs and ensure that it falls in bounded space
             bounded = np.array([s[i][0] for i in range(s.shape[0])])
+            bounded[bounded>1] = 1
+            bounded[bounded<-1] = -1
             
             diffX = space.BD(bounded,state.x[k].shape)
             diffC = self.CGP[k].posterior_samples_f(np.array([action]))[0]
@@ -116,10 +107,4 @@ class Solver():
             state.reconstruct(state.x[k]+diffX,state.c[k]+diffC,k)
 
         return state
-        
-            
-        
-            
-            
-        
-
+    
