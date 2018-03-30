@@ -4,7 +4,7 @@ import gym
 import numpy as np
 from state import *
 import math
-from odmdp import *
+
 print("Finished imports")
 
 def parts(obs):
@@ -31,7 +31,7 @@ def obs(state):
 
     return ret, 1 if ret == 15 else 0, ret == 5 or ret == 7 or ret == 11 or ret == 12 or ret == 15
 
-def OnDemandDQNSubSolver(trial,nparts,dparts,bounds,shape,parts,aspace):
+def subsolver(transition):
     tf.reset_default_graph()
     inputs1 = tf.placeholder(shape=[1,16],dtype=tf.float32)
     W = tf.Variable(tf.random_uniform([16,4],0,0.01))
