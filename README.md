@@ -2,7 +2,7 @@
 ## What is on-demand reinforcement learning?
 Current reinforcement learning (RL) methods, while model-free, still require an agent to walk through the Markov Decision Process (MDP) many times. Thus, the MDP state transition model must be known or completely simulatable. However, in many real-world contexts (such as performing business negotations or interacting with people in general), we do not know the model, and thus cannot train with it. 
 
-We call the problem approximating the optimal policy while only walking through the MDP a _single_ time **on-demand RL**.
+In an **on-demand** RL problem, we aim to approximate the optimal policy while only walking through the MDP a _single_ time.
 
 ## What is this code?
 This code implements a general method for approximating the policy in the on-demand environment, applicable to _any_ RL problem. Without going into much detail, it works by approximating the MDP state transition model given state transitions that we have seen thus far, and calls a subsolver that finds the optimal policy given the approximated model.
