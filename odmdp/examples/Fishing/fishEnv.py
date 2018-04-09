@@ -8,9 +8,11 @@ def count(hours):
     return np.random.normal(hours*FPH, np.sqrt(hours*FSTD**2))
 
 DAYS = 100
-TYPES = 5 #1 indexed
+TYPES = 1000 #1 indexed
 e = fsolve(f, .5, (TYPES))[0]
 P = np.array([e**i for i in range(1,TYPES+1)])
+
+#Action space <hours> ranges from 0 to 12 hours
 
 #Fish per hour and STD on FPH
 FPH = 20
@@ -20,30 +22,47 @@ FSTD = 5
 
 #Gas pricing in dollars per gallon
 GAS_MEAN = 3
-GAS_PERIOD = 50 #in days
-GAS_AMPLITUDE = 1
+GAS_PERIOD = 100 #in days
+GAS_AMPLITUDE = .5
+GAS_STD = .1
 
-#Number of gallons in tank
-GAL = 50
+#Gallons per hour
+GUSE = 5
+GUSTD = .1
 
 #Fish pricing
 BASE = 1 #Expected price for worst fish
 STD = .1 #Standard deviation on fish price
-MULT = 1.5 #Scale by mult^(type-1)
 PERIOD = 100 #Period for type 1 fish
 RATE = 1/2 #Ratio of successive type periods
+SELL = .05 #Expected time until one fish is sold
+SELL_STD = .005
 
-def price(typ, quality, day):
-    scale = (typ+quality)*MULT**(typ-1)
+def fish_price(typ, quality, day):
+    base = BASE+(typ+quality)
     pd = PERIOD*RATE**(typ-1)
-    mean = scale*np.sin(pd*day/(2*np.pi))
-    return np.random.normal(mean,STD)
+    mean = base + np.sin(pd*day/(2*np.pi))
+    return np.random.normal(mean,FSTD)
 
-def gas(time):
-    return GAL*(np.normal(
+def gas_cost(day):
+    return GAS_MEAN+np.random.normal(np.sin(GAS_PERIOD*day/(2*np.pi)),GAS_STD)
 
-def transition(hours,time):
-    fish = np.random.multinomial(np.round(count(hours)),P)
-    return fish
-                            
+def gas_use(hrs):
+    return sum(np.random.normal(GUSE,GUSTD,int(hrs)))+(hrs-int(hrs))*np.random.normal(GUSE,GUSTD)
 
+def transition(hours,day):
+    global fish
+    fish = np.random.multinomial(abs(np.round(count(hours))),P)
+    fsell = fish.copy()
+    qualities = [np.random.uniform(0,1,fish[i]) for i in range(TYPES)]
+    reward = -gas_cost(day)*gas_use(hours)
+    time_remaining = 12-hours
+    while time_remaining > 0 and sum(fsell) > 0:
+        time_remaining -= np.random.normal(SELL,SELL_STD)
+        sell_dist = np.ceil(fsell/sum(fsell))
+        sold = np.where(np.random.multinomial(1,sell_dist/np.count_nonzero(sell_dist))==1)[0][0]
+        fsell[sold] -= 1
+        qual = qualities[sold][-1]
+        qualities[sold] = qualities[sold][:-1]
+        reward += fish_price(sold+1,qual,day)
+    return fish, reward
