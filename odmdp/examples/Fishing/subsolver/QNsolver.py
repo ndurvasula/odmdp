@@ -1,7 +1,9 @@
+print("Importing..")
 import tensorflow as tf
 import numpy as np
 import fishEnv
 import pylab as pb
+print("Starting..")
 
 pb.ion()
 
@@ -82,10 +84,10 @@ class QNetwork(object):
         _, _ = session.run([self.train_op, self.weights],
                            feed_dict={self.states: np.identity(self.in_dimension)[observation:observation + 1],self.next_Q: targetQ})
 
-MAX_EPISODES = 200
+MAX_EPISODES = 1000
 MAX_STEPS = 100 #How many days we fish for
-DELTA=10 #Action space subdivision
-QN = QNetwork(in_dimension=MAX_STEPS,out_dimension=12*DELTA,discount_factor=1,start_epsilon=1,decay_rate=.5,decay_step=1,learning_rate=.01)
+DELTA=20 #Action space subdivision
+QN = QNetwork(in_dimension=MAX_STEPS,out_dimension=12*DELTA,discount_factor=.99,start_epsilon=.5,decay_rate=.99,decay_step=10,learning_rate=.1)
 QN.create_network_graph()
 
 E_Reward = 0
@@ -127,4 +129,4 @@ with tf.Session() as sess:
         rew.append(E_Reward)
         E_Reward=0
 
-pb.plot([i for i in range(100)],rew)
+pb.plot([i for i in range(1000)],rew)
