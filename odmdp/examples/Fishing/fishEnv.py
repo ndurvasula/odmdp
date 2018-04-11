@@ -8,7 +8,7 @@ def count(hours):
     return np.random.normal(hours*FPH, np.sqrt(hours*FSTD**2))
 
 DAYS = 100
-TYPES = 1000 #1 indexed
+TYPES = 5 #1 indexed
 e = fsolve(f, .5, (TYPES))[0]
 P = np.array([e**i for i in range(1,TYPES+1)])
 
@@ -41,11 +41,11 @@ SELL_STD = .005
 def fish_price(typ, quality, day):
     base = BASE+(typ+quality)
     pd = PERIOD*RATE**(typ-1)
-    mean = base + np.sin(pd*day/(2*np.pi))
+    mean = base + np.sin(day*(2*np.pi)/pd)
     return np.random.normal(mean,FSTD)
 
 def gas_cost(day):
-    return GAS_MEAN+np.random.normal(np.sin(GAS_PERIOD*day/(2*np.pi)),GAS_STD)
+    return GAS_MEAN+np.random.normal(np.sin(day*(2*np.pi)/GAS_PERIOD),GAS_STD)
 
 def gas_use(hrs):
     return sum(np.random.normal(GUSE,GUSTD,int(hrs)))+(hrs-int(hrs))*np.random.normal(GUSE,GUSTD)
@@ -53,9 +53,12 @@ def gas_use(hrs):
 def transition(hours,day):
     global fish
     fish = np.random.multinomial(abs(np.round(count(hours))),P)
-    fsell = fish.copy()
     qualities = [np.random.uniform(0,1,fish[i]) for i in range(TYPES)]
+    return fish, reward(hours,day,fish,qualities)
+
+def reward(hours,day,fish,qualities):
     reward = -gas_cost(day)*gas_use(hours)
+    fsell = fish.copy()
     time_remaining = 12-hours
     while time_remaining > 0 and sum(fsell) > 0:
         time_remaining -= np.random.normal(SELL,SELL_STD)
@@ -65,4 +68,4 @@ def transition(hours,day):
         qual = qualities[sold][-1]
         qualities[sold] = qualities[sold][:-1]
         reward += fish_price(sold+1,qual,day)
-    return fish, reward
+    return reward
