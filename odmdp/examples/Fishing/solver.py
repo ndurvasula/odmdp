@@ -37,7 +37,7 @@ class Solver():
             print("Explored on time",self.t)
             self.t+= 1
             act = application.explore(self.dxhist,self.chist,self.ahist)
-            self.ahist = np.append([act],self.ahist,axis=0)
+            self.ahist = np.append(self.ahist,[act],axis=0)
             return act
 
         #Use the subsolver to solve the simulated environment
@@ -73,7 +73,12 @@ class Solver():
         bounded = [np.array([space.DB(self.dxhist[k][j]) for j in range(self.dxhist[k].shape[0])]) for k in range(self.state.nparts)]
 
         #Construct the GPs
-        self.XGP = [GPy.models.GPRegression(self.ahist,bounded[i]) for i in range(self.state.nparts)]
+        self.XGP = []
+        for k in range(self.state.nparts):
+            arr = [np.array([[j] for j in bounded[k][:,i]]) for i in range(bounded[k][0].shape[0])]
+            add = [GPy.models.GPRegression(self.ahist,i) for i in arr]
+            self.XGP.append(add)
+            
         self.CGP = [GPy.models.GPRegression(self.ahist,self.chist[i]) for i in range(self.state.nparts)]
 
         print("Updating model")
@@ -83,24 +88,31 @@ class Solver():
             print("X HMC")
             #Set X kernel hyperparameters to HMC output
 
+            """
             hmcX = GPy.inference.mcmc.HMC(self.XGP[k])
             sX = hmcX.sample(num_samples=300)
             sX = sX[100:] #Burn in
             self.XGP[k].kern.variance = sX[:,0].mean()
             self.XGP[k].kern.lengthscale = sX[:,1].mean()
             self.XGP[k].likelihood.variance = sX[:,2].mean()
+            """
+            for i in range(len(self.XGP[k])):
+                self.XGP[k][i].optimize()
             
             pickle.dump(self.XGP[k],open("xgp.bin",'wb'))
 
             print("C HMC")
             #Set C kernel hyperparameters to HMC output
 
+            """
             hmcC = GPy.inference.mcmc.HMC(self.CGP[k])
             sC = hmcC.sample(num_samples=300)
             sC = sC[100:] #Burn in
             self.CGP[k].kern.variance = sC[:,0].mean()
             self.CGP[k].kern.lengthscale = sC[:,1].mean()
             self.CGP[k].likelihood.variance = sC[:,2].mean()
+            """
+            self.CGP[k].optimize()
 
             pickle.dump(self.CGP[k],open("cgp.bin","wb"))
 
@@ -114,11 +126,11 @@ class Solver():
     def sample(self, state,action):
         #Get estimated state deltas from GPs
         for k in range(state.nparts):
-            s = self.XGP[k].posterior_samples_f(np.array([action]))
+            #s = self.XGP[k].posterior_samples_f(np.array([action]))
 
             #Get data from GPs and ensure that it falls in bounded space
             #bounded = np.array([s[i][0][0] for i in range(s.shape[0])])
-            bounded = self.XGP[k].predict(np.array([action]))[0][0]
+            bounded = np.array([self.XGP[k][i].predict(np.array([action]))[0][0][0] for i in range(len(self.XGP[k]))])
 
             bounded[bounded>1] = 1
             bounded[bounded<-1] = -1

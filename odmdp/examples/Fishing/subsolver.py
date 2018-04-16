@@ -110,7 +110,7 @@ def conv(parts):
 
 def solve(s0, t0, transition):
     
-    MAX_EPISODES = 30
+    MAX_EPISODES = 10
     MAX_STEPS = 365 #How many days we fish for
     DELTA=100 #Action space subdivision
     QN = QNetwork(in_dimension=MAX_STEPS,out_dimension=DELTA,discount_factor=.99,start_epsilon=1,decay_rate=.99,decay_step=10,learning_rate=.01)
@@ -154,6 +154,7 @@ def solve(s0, t0, transition):
                 if obs == MAX_STEPS-1:
                     QN.end_episode(current_episode=obs)
                     break
+            print("Episode reward:",C_Reward)
             C_Reward=0
 
         pred_a, allQ = sess.run([QN.prediction_op, QN.Q_out],

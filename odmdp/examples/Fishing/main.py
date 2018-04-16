@@ -1,6 +1,15 @@
 import gym, gym_fish
-import solver, state
+import solver, state, space
 import numpy as np
+
+def log():
+    import GPy, pickle
+    import pylab as pb
+    XGP = pickle.load(open("xgp.bin","rb"))
+    for i in XGP:
+        i.plot()
+    CGP = pickle.load(open("cgp.bin","rb"))
+    CGP.plot()
 
 def parts(obs):
     arr = []
@@ -19,10 +28,11 @@ for i in range(365):
     s, r, done, _ = env.step(a)
     sol.update([parts(s)])
     reward += r
-    input("Continue:")
+    #input("Continue:")
     print("ACTUAL FISH:",s)
     print("ACTUAL REWARD",r)
  
 print("FINAL REWARD: ",reward)
+
 
 
