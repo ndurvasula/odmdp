@@ -7,7 +7,7 @@ def Mw(X):
 
 #Magnitude B function
 def Mb(X):
-    return np.max(X)
+    return np.max(abs(X))
 
 #Convert difference space to bounded space
 def DB(X):
