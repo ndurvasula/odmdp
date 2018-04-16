@@ -160,7 +160,8 @@ def solve(s0, t0, transition):
                                     feed_dict={QN.states:np.identity(QN.in_dimension)[t0:t0+1]})
         current = transition(current,np.array([pred_a*1.0/DELTA]))
         reward = _reward(conv(current.parts[0]), obs)
-        print("Expected reward:",reward)
+        print("Predicted fish:",conv(current.parts[0]))
+        print("Predicted reward:",reward)
 
         return np.array([pred_a*1.0/DELTA]), C_Reward
 

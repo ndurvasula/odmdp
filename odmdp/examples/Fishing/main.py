@@ -13,13 +13,16 @@ def parts(obs):
 env = gym.make('fish-v0')
 reward = 0
 s0 = state.State([parts(env.reset())])
-sol = solver.Solver(s0,.9)
+sol = solver.Solver(s0,.99)
 for i in range(365):
     a = sol.step()
     s, r, done, _ = env.step(a)
     sol.update([parts(s)])
     reward += r
+    input("Continue:")
+    print("ACTUAL FISH:",s)
     print("ACTUAL REWARD",r)
+ 
 print("FINAL REWARD: ",reward)
 
 

@@ -6,6 +6,7 @@ import space
 import application
 from state import State
 import pylab as pb
+import pickle
 pb.ion()
 
 class Solver():
@@ -81,27 +82,28 @@ class Solver():
         for k in range(self.state.nparts):
             print("X HMC")
             #Set X kernel hyperparameters to HMC output
-            """
+
             hmcX = GPy.inference.mcmc.HMC(self.XGP[k])
             sX = hmcX.sample(num_samples=300)
             sX = sX[100:] #Burn in
             self.XGP[k].kern.variance = sX[:,0].mean()
             self.XGP[k].kern.lengthscale = sX[:,1].mean()
             self.XGP[k].likelihood.variance = sX[:,2].mean()
-            """
-            self.XGP[k].optimize()
+            
+            pickle.dump(self.XGP[k],open("xgp.bin",'wb'))
 
             print("C HMC")
             #Set C kernel hyperparameters to HMC output
-            """
+
             hmcC = GPy.inference.mcmc.HMC(self.CGP[k])
             sC = hmcC.sample(num_samples=300)
             sC = sC[100:] #Burn in
             self.CGP[k].kern.variance = sC[:,0].mean()
             self.CGP[k].kern.lengthscale = sC[:,1].mean()
             self.CGP[k].likelihood.variance = sC[:,2].mean()
-            """
-            self.CGP[k].optimize()
+
+            pickle.dump(self.CGP[k],open("cgp.bin","wb"))
+
 
     """
     Sample from our model
@@ -115,7 +117,8 @@ class Solver():
             s = self.XGP[k].posterior_samples_f(np.array([action]))
 
             #Get data from GPs and ensure that it falls in bounded space
-            bounded = np.array([s[i][0][0] for i in range(s.shape[0])])
+            #bounded = np.array([s[i][0][0] for i in range(s.shape[0])])
+            bounded = self.XGP[k].predict(np.array([action]))[0][0]
 
             bounded[bounded>1] = 1
             bounded[bounded<-1] = -1
