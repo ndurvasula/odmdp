@@ -110,7 +110,7 @@ def conv(parts):
 
 def solve(s0, t0, transition):
     
-    MAX_EPISODES = 20
+    MAX_EPISODES = 30
     MAX_STEPS = 365 #How many days we fish for
     DELTA=100 #Action space subdivision
     QN = QNetwork(in_dimension=MAX_STEPS,out_dimension=DELTA,discount_factor=.99,start_epsilon=1,decay_rate=.99,decay_step=10,learning_rate=.01)
