@@ -88,6 +88,7 @@ MAX = 3 #Best possible fish price
 PERIOD = 365.0 #Time for pricing cycle to repeat itself
 K = .2 #Spread factor
 TYPES = 3
+DEBUG = True
 
 #Fish locations
 MEANS = np.array([i*1.0/(TYPES-1) for i in range(TYPES)])
@@ -103,14 +104,14 @@ def _reward(fish,day):
     return sum([p[i]*fish[i] for i in range(TYPES)])
 
 def conv(parts):
-    arr = [0 for i in range(3)]
+    arr = [0 for i in range(TYPES)]
     for i in parts:
         arr[int(i[0])] += 1
     return np.array(arr)
 
 def solve(s0, t0, transition):
     
-    MAX_EPISODES = 10
+    MAX_EPISODES = 25
     MAX_STEPS = 365 #How many days we fish for
     DELTA=100 #Action space subdivision
     QN = QNetwork(in_dimension=MAX_STEPS,out_dimension=DELTA,discount_factor=.99,start_epsilon=1,decay_rate=.99,decay_step=10,learning_rate=.01)
@@ -122,7 +123,8 @@ def solve(s0, t0, transition):
         sess.run(init)
 
         for i in range(MAX_EPISODES):
-            print("Episode",i)
+            if DEBUG:
+                print("Episode",i)
         
             obs = t0
             parts0 = np.array([np.copy(s0.parts[i]) for i in range(s0.nparts)])
@@ -154,15 +156,18 @@ def solve(s0, t0, transition):
                 if obs == MAX_STEPS-1:
                     QN.end_episode(current_episode=obs)
                     break
-            print("Episode reward:",C_Reward)
+            if DEBUG:
+                print("Episode reward:",C_Reward)
+                
             C_Reward=0
 
         pred_a, allQ = sess.run([QN.prediction_op, QN.Q_out],
                                     feed_dict={QN.states:np.identity(QN.in_dimension)[t0:t0+1]})
         current = transition(current,np.array([pred_a*1.0/DELTA]))
-        reward = _reward(conv(current.parts[0]), obs)
-        print("Predicted fish:",conv(current.parts[0]))
-        print("Predicted reward:",reward)
+        reward = _reward(conv(current.parts[0]), t0)
+        if DEBUG:
+            print("Predicted fish:",conv(current.parts[0]))
+            print("Predicted reward:",reward)
 
         return np.array([pred_a*1.0/DELTA]), C_Reward
 
