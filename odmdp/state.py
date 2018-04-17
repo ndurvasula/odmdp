@@ -14,7 +14,7 @@ class State():
 
         self.x = []
         self.c = []
-        for k in range(nparts):
+        for k in range(self.nparts):
             x_k,c_k = self.decompose(k)
             self.x.append(x_k)
             self.c.append(c_k)
@@ -26,6 +26,10 @@ class State():
     """
     def decompose(self,k):
         jpmf = np.zeros(self.sh[k])
+
+        if np.size(self.parts[k]) == 0:
+            return 1.0/np.size(jpmf) + jpmf, np.array([0])
+
         objs = []
         freq = []
         diff = 0
@@ -53,7 +57,7 @@ class State():
     def reconstruct(self, jpmf, c, k):
         self.x[k] = self.fixJPMF(jpmf)
         self.c[k] = c
-        self.parts[k] = np.empty([0,self.dparts[k]])
+        self.parts = [self.parts[i] if i != k else np.empty([0,self.dparts[k]]) for i in range(self.nparts)]
         for index, x in np.ndenumerate(jpmf):
             if np.round(x*c) > 0:
                 obj = []
@@ -87,7 +91,7 @@ class State():
     """
     Changes state data from new partition values
     """
-    def transition(parts):
+    def transition(self, parts):
         self.parts = parts
 
         self.x = []
@@ -101,10 +105,10 @@ class State():
     Ensures that JPMF is non-negtative
     """
     def fixJPMF(self,raw_jpmf):
-        ret = [np.empty(raw_jpmf[k].shape) for k in range(self.nparts)]
-        for k in range(self.nparts):
-            #Make all negative values 0, and scale sum to be 1
-            mass = abs(((raw_jpmf[k]<0)*raw_jpmf[k]).sum()) #negative mass
-            raw_jpmf[k][raw_jpmf[k]<0] = 0
-            ret[k] = raw_jpmf[k]/(1+mass)
+        ret = np.empty(raw_jpmf.shape)
+
+        #Make all negative values 0, and scale sum to be 1
+        mass = abs(((raw_jpmf<0)*raw_jpmf).sum()) #negative mass
+        raw_jpmf[raw_jpmf<0] = 0
+        ret = raw_jpmf/(1+mass)
         return ret
