@@ -85,13 +85,13 @@ class QNetwork(object):
 
 env = gym.make('fish-v0')
 
-MAX_EPISODES = 500
+MAX_EPISODES = 30
 MAX_STEPS = 365 #How many days we fish for
 DELTA=100 #Action space subdivision
-QN = QNetwork(in_dimension=MAX_STEPS,out_dimension=DELTA,discount_factor=.99,start_epsilon=1,decay_rate=.99,decay_step=100,learning_rate=.01)
+QN = QNetwork(in_dimension=MAX_STEPS,out_dimension=DELTA,discount_factor=.99,start_epsilon=1,decay_rate=.99,decay_step=10,learning_rate=.01)
 QN.create_network_graph()
 
-E_Reward = 0
+C_Reward = 0
 rew = []
 init = tf.global_variables_initializer()
 with tf.Session() as sess:
@@ -109,7 +109,7 @@ with tf.Session() as sess:
                 pred_a = env.action_space.sample()
 
             n_obs = obs+1
-            _, reward, done, __ = env.step(pred_a)
+            _, reward, done, __ = env.step([pred_a])
 
             all_next = sess.run(QN.Q_out, feed_dict={
                 QN.states: np.identity(QN.in_dimension)[n_obs:n_obs+1]})
@@ -122,14 +122,14 @@ with tf.Session() as sess:
 
             obs = n_obs
             
-            E_Reward += reward*1.0/MAX_STEPS
+            C_Reward += reward
 
             if done:
                 QN.end_episode(current_episode=obs)
                 break
-        print("Expected reward",E_Reward)
-        rew.append(E_Reward)
-        E_Reward=0
+        print("Total reward",C_Reward)
+        rew.append(C_Reward)
+        C_Reward=0
 
 pb.plot([i for i in range(MAX_EPISODES)],rew)
     
