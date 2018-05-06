@@ -85,10 +85,10 @@ class QNetwork(object):
 
 env = gym.make('fish-v0')
 
-MAX_EPISODES = 30
+MAX_EPISODES = 200
 MAX_STEPS = 365 #How many days we fish for
 DELTA=100 #Action space subdivision
-QN = QNetwork(in_dimension=MAX_STEPS,out_dimension=DELTA,discount_factor=.99,start_epsilon=1,decay_rate=.99,decay_step=10,learning_rate=.01)
+QN = QNetwork(in_dimension=MAX_STEPS,out_dimension=DELTA,discount_factor=.99,start_epsilon=1,decay_rate=.99,decay_step=100,learning_rate=.03)
 QN.create_network_graph()
 
 C_Reward = 0

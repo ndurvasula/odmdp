@@ -19,8 +19,13 @@ HMC_SAMPLES = 300
 DEBUG = True
 PLOT = True
 
+switch = True
+remaining = 0
+
 if LOG:
-    shutil.rmtree("logs/")
+    if os.path.exists("logs/"):
+        shutil.rmtree("logs/")
+        
     os.makedirs("logs/")
     pickle.dump([],open("logs/xgp.bin",'wb'))
     pickle.dump([],open("logs/cgp.bin","wb"))
@@ -29,11 +34,13 @@ class Solver():
     """
     s0 - the initial state
     e - the exploration constant, at time t, the probability that we explore instead of subsolve is e^t (t starts at 0)
+    trust - the rate at which we trust the model
     """
-    def __init__(self,s0,e):
+    def __init__(self,s0,e,trust):
         self.state = s0
         self.e = e
         self.t = 0
+        self.trust = trust
         
         #State delta history and action history in our walk so far for each partition
         self.dxhist = [np.empty([0,np.prod(np.array(self.state.sh[k]))]) for k in range(self.state.nparts)]
@@ -48,8 +55,10 @@ class Solver():
     Returns the next action that we should take and update the action history
     """
     def step(self):
+        global switch, remaining
+        
         #Do we explore?
-        if np.random.uniform(0,1) < self.e**self.t:
+        if switch and np.random.uniform(0,1) < self.e**self.t:
             if DEBUG:
                 print("Explored on time",self.t)
                 
@@ -59,10 +68,18 @@ class Solver():
             return act
 
         #Use the subsolver to solve the simulated environment
-        if DEBUG:
-            print("Subsolved on time",self.t)
+        if remaining == 0:
+            remaining = np.floor(self.trust**self.t)
+            switch = False
+            if DEBUG:
+                print("Subsolved on time",self.t,"for",remaining,"iterations")
             
-        act = application.subsolver(self.state,self.t,self.sample)
+        remaining -= 1
+
+        if remaining == 0:
+            switch = True
+            
+        act = application.subsolver(self.state,self.t,np.floor(self.trust**self.t),self.sample)
         self.t += 1
         self.ahist = np.append(self.ahist,[act],axis=0)
         return act

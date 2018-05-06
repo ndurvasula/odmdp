@@ -13,7 +13,7 @@ def parts(obs):
 env = gym.make('fish-v0')
 reward = 0
 s0 = state.State([parts(env.reset())])
-sol = solver.Solver(s0,.99)
+sol = solver.Solver(s0,.95,1.02)
 for i in range(365):
     a = sol.step()
     s, r, done, _ = env.step(a)

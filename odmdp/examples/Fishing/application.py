@@ -10,7 +10,7 @@ BOUNDS - a multidimensional array denoting the set of values that the partitione
 SHAPE - a multidimensional array denoting the number of values that the partioned part of the state can take on
         if we take the above example for <bounds>, we get shape = [[3],[2,4],[3]]
 
-subsolver(state, time, transition) - solves the RL problem given that transition(state,action) performs a state transition and returns the *first* action
+subsolve(state, time, transition) - solves the RL problem given that transition(state,action) performs a state transition and returns the *first* action
 explore(dxhist,chist,ahist) - generates a random action by user-chosen distribution, may utilize dxhist, chist, ahist
 > dxhist - delta x history for all k
 > chist - delta c history for all k
@@ -24,16 +24,33 @@ import pickle
 ACTION_SIZE = 1
 NPARTS = 1
 DPARTS = [1]
-BOUNDS = [[[0,1,2]]]
-SHAPE = [[3]]
+BOUNDS = [[[0,1,2,3,4]]]
+SHAPE = [[5]]
 
 ends = []
+remaining = 0
+actions = []
 
-def subsolver(state, time, transition):
-    action, e = sub.solve(state,time,transition)
+def subsolver(state, time, iters, transition):
+    global actions, remaining
+
+    #Make a new set of actions
+    if remaining == 0:
+        remaining = iters
+        actions = subsolve(state,time,iters,transition)
+        
+    #Use what we already have
+    remaining -= 1
+    action = actions[0]
+    del actions[0]
+    return action
+        
+
+def subsolve(state,time,iters,transition):
+    acts, e = sub.solve(state,time,iters,transition)
     ends.append(e)
     pickle.dump(ends, open("ends.bin","wb"))
-    return action
+    return acts
 
 def explore(dxhist,chist,ahist):
     return np.array([np.random.uniform()])

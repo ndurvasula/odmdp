@@ -87,7 +87,7 @@ BASE = 1 #Worst possible fish price
 MAX = 3 #Best possible fish price
 PERIOD = 365.0 #Time for pricing cycle to repeat itself
 K = .2 #Spread factor
-TYPES = 3
+TYPES = 5
 DEBUG = True
 
 #Fish locations
@@ -109,12 +109,12 @@ def conv(parts):
         arr[int(i[0])] += 1
     return np.array(arr)
 
-def solve(s0, t0, transition):
+def solve(s0, t0, iters, transition):
     
-    MAX_EPISODES = 25
+    MAX_EPISODES = 200
     MAX_STEPS = 365 #How many days we fish for
     DELTA=100 #Action space subdivision
-    QN = QNetwork(in_dimension=MAX_STEPS,out_dimension=DELTA,discount_factor=.99,start_epsilon=1,decay_rate=.99,decay_step=10,learning_rate=.01)
+    QN = QNetwork(in_dimension=MAX_STEPS,out_dimension=DELTA,discount_factor=.99,start_epsilon=1,decay_rate=.99,decay_step=100,learning_rate=.075)
     QN.create_network_graph()
 
     C_Reward = 0
@@ -161,15 +161,22 @@ def solve(s0, t0, transition):
                 
             C_Reward=0
 
-        pred_a, allQ = sess.run([QN.prediction_op, QN.Q_out],
-                                    feed_dict={QN.states:np.identity(QN.in_dimension)[t0:t0+1]})
-        current = transition(current,np.array([pred_a*1.0/DELTA]))
-        reward = _reward(conv(current.parts[0]), t0)
+        #Return the string of actions
+        actions = []
+        for step in range(0,int(min(iters,MAX_STEPS-t0))):
+            pred_a, allQ = sess.run([QN.prediction_op, QN.Q_out],
+                                        feed_dict={QN.states:np.identity(QN.in_dimension)[t0+step:t0+step+1]})
+            actions.append(np.array([pred_a*1.0/DELTA]))
+            current = transition(current,np.array([pred_a*1.0/DELTA]))
+
+            if step == 0:
+                reward = _reward(conv(current.parts[0]), t0)
+                fi = conv(current.parts[0])
         if DEBUG:
-            print("Predicted fish:",conv(current.parts[0]))
+            print("Predicted fish:",fi)
             print("Predicted reward:",reward)
 
-        return np.array([pred_a*1.0/DELTA]), C_Reward
+        return actions, C_Reward
 
 
     
