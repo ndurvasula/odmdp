@@ -11,8 +11,8 @@ def parts(obs):
             arr.append([i])
     return np.array(arr)
 
-typ,rand,sbd,d = sys.argv[1:]
-dname = str(typ)+"_"+str(rand)+"_"+str(sbd)+"_"+str(d)
+typ,rand,sbd,d,tnumber = sys.argv[1:]
+dname = str(typ)+"_"+str(rand)+"_"+str(sbd)+"_"+str(d)+"_"+str(tnumber)
 pickle.dump(([[[i for i in range(typ)]]],[[typ]]), open(dname+".bounds","wb"))
 pickle.dump([],open(dname+"true.state","wb"))
 pickle.dump([],open(dname+"true.reward","wb"))
