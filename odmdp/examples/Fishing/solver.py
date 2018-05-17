@@ -5,12 +5,13 @@ import GPy
 import space
 import application
 from state import State
-import pylab as pb
 import matplotlib
 import pickle
 import os, shutil
 
-pb.ioff()
+matplotlib.use('Agg')
+
+import matplotlib.pyplot as pb
 
 CHANGE = False
 X_STOCHASTIC = False
