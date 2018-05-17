@@ -6,8 +6,11 @@ import space
 import application
 from state import State
 import pylab as pb
+import matplotlib
 import pickle
 import os, shutil
+
+matplotlib.use('Agg')
 
 CHANGE = False
 X_STOCHASTIC = False
