@@ -40,8 +40,8 @@ class Solver():
                 shutil.rmtree(DNAME+"logs/")
                 
             os.makedirs(DNAME+"logs/")
-            pickle.dump([],open(DNAME+"logs/xgp.bin",'wb'))
-            pickle.dump([],open(DNAME+"logs/cgp.bin","wb"))
+            pickle.dump([],open(DNAME+"logs/XGP.bin",'wb'))
+            pickle.dump([],open(DNAME+"logs/CGP.bin","wb"))
         
         self.state = s0
         self.e = e
