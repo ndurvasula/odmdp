@@ -76,7 +76,7 @@ typ,d,tp = experiment(exp)
 threads = []
 for rand in range(2):
     for sbd in range(2):
-        for tnumber in range(5*(tp-1)+1, 5*(tp-1)+5):
+        for tnumber in range(4*(tp-1)+1, 4*(tp-1)+5):
             print((typ,rand,sbd,d,tnumber,))
             thr = threading.Thread(target=run, args = (typ,rand,sbd,d,tnumber,))
             threads.append(thr)
