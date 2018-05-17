@@ -11,12 +11,43 @@ def parts(obs):
             arr.append([i])
     return np.array(arr)
 
-typ,rand,sbd,d,tnumber = sys.argv[1:]
-typ = int(typ)
-rand = int(rand)
-sbd = int(sbd)
-d = int(d)
-tnumber = int(tnumber)
+def experiment(exp):
+    if exp <= 240:
+        typ = 5
+    elif exp <= 480:
+        typ = 10
+        exp -= 240
+    else:
+        typ = 2
+        exp -= 480
+
+    if exp <= 120:
+        rand = False
+    else:
+        rand = True
+        exp -= 120
+
+    if exp <= 60:
+        sbd = False
+    else:
+        sbd = True
+        exp -= 60
+
+    if exp <= 20:
+        d = 75
+    elif exp <= 40:
+        d = 365
+        exp -= 20
+    else:
+        d = 20
+        exp -= 40
+
+    return typ, rand, sbd, exp
+
+exp = sys.argv[1]
+typ,rand,sbd,d,tnumber = experiment(exp)
+
+
 dname = str(typ)+"_"+str(rand)+"_"+str(sbd)+"_"+str(d)+"_"+str(tnumber)
 pickle.dump(([[[i for i in range(typ)]]],[[typ]]), open(dname+".bounds","wb"))
 pickle.dump([],open(dname+"true.state","wb"))
