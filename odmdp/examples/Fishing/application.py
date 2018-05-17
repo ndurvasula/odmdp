@@ -27,9 +27,16 @@ DPARTS = [1]
 BOUNDS = [[[0,1,2,3,4]]]
 SHAPE = [[5]]
 
+DNAME = ""
+
 ends = []
 remaining = 0
 actions = []
+
+def init(dname):
+    global BOUNDS, SHAPE, DNAME
+    DNAME = dname
+    BOUNDS,SHAPE = pickle.load(open(dname+".bounds","rb"))
 
 def subsolver(state, time, iters, transition):
     global actions, remaining
@@ -49,7 +56,7 @@ def subsolver(state, time, iters, transition):
 def subsolve(state,time,iters,transition):
     acts, e = sub.solve(state,time,iters,transition)
     ends.append(e)
-    pickle.dump(ends, open("ends.bin","wb"))
+    pickle.dump(ends, open(DNAME+"ends.bin","wb"))
     return acts
 
 def explore(dxhist,chist,ahist):

@@ -3,6 +3,7 @@ import tensorflow as tf
 import numpy as np
 from state import *
 from scipy.stats import norm
+import pickle
 print("Starting...")
 
 class QNetwork(object):
@@ -109,7 +110,12 @@ def conv(parts):
         arr[int(i[0])] += 1
     return np.array(arr)
 
-def solve(s0, t0, iters, transition):
+def solve(s0, t0, iters, transition, dname):
+    global TYPES, MEANS
+    TYPES, MEANS = pickle.load(open(dname+"subsolve.dat","rb"))
+
+    pickle.dump([],open(dname+"pred.state", "wb"))
+    pickle.dump([],open(dname+"pred.reward", "wb"))
     
     MAX_EPISODES = 200
     MAX_STEPS = 365 #How many days we fish for
@@ -172,6 +178,12 @@ def solve(s0, t0, iters, transition):
             if step == 0:
                 reward = _reward(conv(current.parts[0]), t0)
                 fi = conv(current.parts[0])
+        S = pickle.load(open(dname+"pred.state", "rb"))
+        R = pickle.load(open(dname+"pred.reward", "rb"))
+        S.append(fi)
+        R.append(reward)
+        pickle.dump(S,open(dname+"pred.state", "wb"))
+        pickle.dump(R,open(dname+"pred.reward", "wb"))
         if DEBUG:
             print("Predicted fish:",fi)
             print("Predicted reward:",reward)

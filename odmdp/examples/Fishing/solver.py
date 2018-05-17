@@ -18,17 +18,10 @@ HMC = False
 HMC_SAMPLES = 300
 DEBUG = True
 PLOT = True
+DNAME = ""
 
 switch = True
 remaining = 0
-
-if LOG:
-    if os.path.exists("logs/"):
-        shutil.rmtree("logs/")
-        
-    os.makedirs("logs/")
-    pickle.dump([],open("logs/xgp.bin",'wb'))
-    pickle.dump([],open("logs/cgp.bin","wb"))
 
 class Solver():
     """
@@ -36,7 +29,20 @@ class Solver():
     e - the exploration constant, at time t, the probability that we explore instead of subsolve is e^t (t starts at 0)
     trust - the rate at which we trust the model
     """
-    def __init__(self,s0,e,trust):
+    def __init__(self,s0,e,trust,dname):
+        global DNAME
+        DNAME = dname
+
+        application.init(DNAME)
+
+        if LOG:
+            if os.path.exists(DNAME+"logs/"):
+                shutil.rmtree(DNAME+"logs/")
+                
+            os.makedirs(DNAME+"logs/")
+            pickle.dump([],open(DNAME+"logs/xgp.bin",'wb'))
+            pickle.dump([],open(DNAME+"logs/cgp.bin","wb"))
+        
         self.state = s0
         self.e = e
         self.t = 0
@@ -160,37 +166,37 @@ class Solver():
                 self.CGP[k].optimize()
 
         if LOG and self.t % LOG_STEP == 0:
-            Xs = pickle.load(open("logs/XGP.bin","rb"))
-            Cs = pickle.load(open("logs/CGP.bin","rb"))
+            Xs = pickle.load(open(DNAME+"logs/XGP.bin","rb"))
+            Cs = pickle.load(open(DNAME+"logs/CGP.bin","rb"))
 
             Xs.append(self.XGP)
             Cs.append(self.CGP)
             
-            pickle.dump(Xs,open("logs/XGP.bin",'wb'))
-            pickle.dump(Cs,open("logs/CGP.bin","wb"))
+            pickle.dump(Xs,open(DNAME+"logs/XGP.bin",'wb'))
+            pickle.dump(Cs,open(DNAME+"logs/CGP.bin","wb"))
 
             if PLOT:
-                if not os.path.exists("logs/plots/XGP"):
-                    os.makedirs("logs/plots/XGP")
-                if not os.path.exists("logs/plots/CGP"):
-                    os.makedirs("logs/plots/CGP")
+                if not os.path.exists(DNAME+"logs/plots/XGP"):
+                    os.makedirs(DNAME+"logs/plots/XGP")
+                if not os.path.exists(DNAME+"logs/plots/CGP"):
+                    os.makedirs(DNAME+"logs/plots/CGP")
 
                 for k in range(self.state.nparts):
-                    if not os.path.exists("logs/plots/XGP/Partition_"+str(k)):
-                        os.makedirs("logs/plots/XGP/Partition_"+str(k))
-                    if not os.path.exists("logs/plots/CGP/Partition_"+str(k)):
-                        os.makedirs("logs/plots/CGP/Partition_"+str(k))
+                    if not os.path.exists(DNAME+"logs/plots/XGP/Partition_"+str(k)):
+                        os.makedirs(DNAME+"logs/plots/XGP/Partition_"+str(k))
+                    if not os.path.exists(DNAME+"logs/plots/CGP/Partition_"+str(k)):
+                        os.makedirs(DNAME+"logs/plots/CGP/Partition_"+str(k))
 
                     cp = self.CGP[k].plot().figure
-                    cp.savefig("logs/plots/CGP/Partition_"+str(k)+"/t="+str(self.t)+".png")
+                    cp.savefig(DNAME+"logs/plots/CGP/Partition_"+str(k)+"/t="+str(self.t)+".png")
                     pb.close(cp)
 
                     for i in range(len(self.XGP[k])):
-                        if not os.path.exists("logs/plots/XGP/Partition_"+str(k)+"/Variable_"+str(i)):
-                            os.makedirs("logs/plots/XGP/Partition_"+str(k)+"/Variable_"+str(i))
+                        if not os.path.exists(DNAME+"logs/plots/XGP/Partition_"+str(k)+"/Variable_"+str(i)):
+                            os.makedirs(DNAME+"logs/plots/XGP/Partition_"+str(k)+"/Variable_"+str(i))
 
                         xp = self.XGP[k][i].plot().figure
-                        xp.savefig("logs/plots/XGP/Partition_"+str(k)+"/Variable_"+str(i)+"/t="+str(self.t)+".png")
+                        xp.savefig(DNAME+"logs/plots/XGP/Partition_"+str(k)+"/Variable_"+str(i)+"/t="+str(self.t)+".png")
                         pb.close(xp)
 
 
