@@ -11,7 +11,8 @@ def parts(obs):
             arr.append([i])
     return np.array(arr)
 
-typ,rand,sbd,d,tnumber = sys.argv[1:]
+#typ,rand,sbd,d,tnumber = sys.argv[1:]
+typ,rand,sbd,d,tnumber = (3,0,0,100,0)
 typ = int(typ)
 rand = int(rand)
 sbd = int(sbd)
@@ -32,7 +33,7 @@ env = gym.make('fish-v0')
 env.initialize(types=typ,sbdepth=sbd,days=d,means=MEANS)
 
 reward = 0
-s0 = state.State([parts(env.reset())])
+s0 = state.State([parts(env.reset())],dname)
 sol = solver.Solver(s0,.95,1.02,dname)
 for i in range(365):
     a = sol.step()

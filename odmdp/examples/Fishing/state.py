@@ -5,7 +5,9 @@ class State():
     """    
     parts - the current state as an array of partitions (e.g. [np.array(~),np.array(~),...])
     """
-    def __init__(self, parts):
+    def __init__(self, parts, dname):
+        application.init(dname)
+        
         self.nparts = application.NPARTS
         self.dparts = application.DPARTS
         self.parts = parts

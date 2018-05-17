@@ -134,7 +134,7 @@ def solve(s0, t0, iters, transition, dname):
         
             obs = t0
             parts0 = np.array([np.copy(s0.parts[i]) for i in range(s0.nparts)])
-            current = State(parts0)
+            current = State(parts0,dname)
 
             for step in range(0,MAX_STEPS):
                 pred_a, allQ = sess.run([QN.prediction_op, QN.Q_out],

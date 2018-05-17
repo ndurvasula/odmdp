@@ -108,7 +108,7 @@ class Solver():
             dc = [c_new[k]-c_old[k] for k in range(self.state.nparts)]
 
         else:
-            dState = State([np.array([]) for i in range(self.state.nparts)])
+            dState = State([np.array([]) for i in range(self.state.nparts)],DNAME)
             dX = [self.state.x[k]-dState.x[k] for k in range(self.state.nparts)]
             dc = [self.state.c[k]-dState.c[k] for k in range(self.state.nparts)]
         
@@ -231,7 +231,7 @@ class Solver():
                 state.reconstruct(state.x[k]+diffX,state.c[k]+diffC,k)
 
             else:
-                dState = State([np.array([]) for i in range(self.state.nparts)])
+                dState = State([np.array([]) for i in range(self.state.nparts)],DNAME)
                 state.reconstruct(np.array(dState.x[k]+diffX),dState.c[k]+diffC,k)
 
         return state
