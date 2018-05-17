@@ -54,7 +54,7 @@ def subsolver(state, time, iters, transition):
         
 
 def subsolve(state,time,iters,transition):
-    acts, e = sub.solve(state,time,iters,transition)
+    acts, e = sub.solve(state,time,iters,transition,DNAME)
     ends.append(e)
     pickle.dump(ends, open(DNAME+"ends.bin","wb"))
     return acts

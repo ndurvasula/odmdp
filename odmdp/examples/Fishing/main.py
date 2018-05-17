@@ -11,8 +11,7 @@ def parts(obs):
             arr.append([i])
     return np.array(arr)
 
-#typ,rand,sbd,d,tnumber = sys.argv[1:]
-typ,rand,sbd,d,tnumber = (3,0,0,100,0)
+typ,rand,sbd,d,tnumber = sys.argv[1:]
 typ = int(typ)
 rand = int(rand)
 sbd = int(sbd)
@@ -27,7 +26,7 @@ MEANS = np.array([i*1.0/(typ-1) for i in range(typ)])
 if rand:
     MEANS = np.array([np.random.uniform() for i in range(typ)])
 
-pickle.dump((typ,MEANS), open(dname+"subsolve.dat","wb"))
+pickle.dump((typ,MEANS,d), open(dname+"subsolve.dat","wb"))
 
 env = gym.make('fish-v0')
 env.initialize(types=typ,sbdepth=sbd,days=d,means=MEANS)

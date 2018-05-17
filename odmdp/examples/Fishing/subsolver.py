@@ -112,13 +112,13 @@ def conv(parts):
 
 def solve(s0, t0, iters, transition, dname):
     global TYPES, MEANS
-    TYPES, MEANS = pickle.load(open(dname+"subsolve.dat","rb"))
+    TYPES, MEANS, days = pickle.load(open(dname+"subsolve.dat","rb"))
 
     pickle.dump([],open(dname+"pred.state", "wb"))
     pickle.dump([],open(dname+"pred.reward", "wb"))
     
     MAX_EPISODES = 200
-    MAX_STEPS = 365 #How many days we fish for
+    MAX_STEPS = days #How many days we fish for
     DELTA=100 #Action space subdivision
     QN = QNetwork(in_dimension=MAX_STEPS,out_dimension=DELTA,discount_factor=.99,start_epsilon=1,decay_rate=.99,decay_step=100,learning_rate=.075)
     QN.create_network_graph()
