@@ -44,7 +44,7 @@ def experiment(exp):
 
     return typ, rand, sbd, d, exp
 
-exp = sys.argv[1]
+exp = str(sys.argv[1])
 typ,rand,sbd,d,tnumber = experiment(exp)
 
 
