@@ -30,7 +30,7 @@ def run(typ,rand,sbd,d,tnumber):
 
     reward = 0
     s0 = state.State([parts(env.reset())],dname)
-    sol = solver.Solver(s0,1,1.02,dname)
+    sol = solver.Solver(s0,.95,1.02,dname)
     for i in range(d):
         a = sol.step()
         s, r, done, _ = env.step(a)
