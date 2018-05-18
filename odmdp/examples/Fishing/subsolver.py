@@ -146,6 +146,12 @@ def solve(s0, t0, iters, transition, dname):
                 current = transition(current,np.array([pred_a*1.0/DELTA]))
                 reward = _reward(conv(current.parts[0]), obs)
 
+                C_Reward += reward
+
+                if obs == MAX_STEPS-1:
+                    QN.end_episode(current_episode=obs)
+                    break
+
                 all_next = sess.run(QN.Q_out, feed_dict={
                     QN.states: np.identity(QN.in_dimension)[n_obs:n_obs+1]})
 
@@ -157,11 +163,7 @@ def solve(s0, t0, iters, transition, dname):
 
                 obs = n_obs
             
-                C_Reward += reward
-
-                if obs == MAX_STEPS-1:
-                    QN.end_episode(current_episode=obs)
-                    break
+                
             if DEBUG:
                 print("Episode reward:",C_Reward)
                 
