@@ -3,7 +3,7 @@ import sys
 import solver, state, space
 import numpy as np
 import pickle
-import threading
+import multiprocessing
 
 def parts(obs):
     arr = []
@@ -71,16 +71,17 @@ def experiment(exp):
 
     return typ, d, exp
 
-exp = int(sys.argv[1])
-typ,d,tp = experiment(exp)
-threads = []
-for rand in range(2):
-    for sbd in range(2):
-        for tnumber in range(4*(tp-1)+1, 4*(tp-1)+5):
-            print((typ,rand,sbd,d,tnumber,))
-            thr = threading.Thread(target=run, args = (typ,rand,sbd,d,tnumber,))
-            threads.append(thr)
-            thr.start()
+if __name__ == '__main__':
+
+    exp = int(sys.argv[1])
+    typ,d,tp = experiment(exp)
+    jobs = []
+    for rand in range(2):
+        for sbd in range(2):
+            for tnumber in range(4*(tp-1)+1, 4*(tp-1)+5):
+                thr = multiprocessing.Process(target=run, args = (typ,rand,sbd,d,tnumber,))
+                jobs.append(thr)
+                thr.start()
 
 
 
