@@ -23,13 +23,14 @@ def run(typ,rand,sbd,d,tnumber):
         pickle.dump([],open(dname+"true.reward","wb"))
 
         MEANS = np.array([i*1.0/(typ-1) for i in range(typ)])
+        STDS = np.array([1.0/(6*(typ-1)) for i in range(typ)])
         if rand:
             MEANS = np.array([np.random.uniform() for i in range(typ)])
 
-        pickle.dump((typ,MEANS,d), open(dname+"subsolve.dat","wb"))
+        pickle.dump((typ,MEANS,STDS,d), open(dname+"subsolve.dat","wb"))
 
         env = gym.make('fish-v0')
-        env.initialize(types=typ,sbdepth=sbd,days=d,means=MEANS,discretize=False)
+        env.initialize(types=typ,sbdepth=sbd,days=d,means=MEANS,discretize=False,stds=STDS)
 
         reward = 0
         s0 = state.State([parts(env.reset())],dname)

@@ -111,8 +111,8 @@ def conv(parts):
     return np.array(arr)
 
 def solve(s0, t0, iters, transition, dname):
-    global TYPES, MEANS
-    TYPES, MEANS, days = pickle.load(open(dname+"subsolve.dat","rb"))
+    global TYPES, MEANS, STDS
+    TYPES, MEANS, STDS, days = pickle.load(open(dname+"subsolve.dat","rb"))
 
     pickle.dump([],open(dname+"pred.state", "wb"))
     pickle.dump([],open(dname+"pred.reward", "wb"))
