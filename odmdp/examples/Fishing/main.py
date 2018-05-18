@@ -54,7 +54,7 @@ def run(typ,rand,sbd,d,tnumber):
         pickle.dump(reward,open(dname+".final","wb"))
 
     except:
-        print(traceback.print_exc(file=dname+".error"))
+        print(traceback.print_exc(file=open(dname+".error","w")))
 
 def experiment(exp):
     if exp <= 15:
