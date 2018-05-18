@@ -4,6 +4,7 @@ import solver, state, space
 import numpy as np
 import pickle
 import multiprocessing
+import traceback
 
 def parts(obs):
     arr = []
@@ -52,8 +53,8 @@ def run(typ,rand,sbd,d,tnumber):
         print("FINAL REWARD: ",reward)
         pickle.dump(reward,open(dname+".final","wb"))
 
-    except Exception as e:
-        pickle.dump(str(e), open(dname+".error","wb"))
+    except:
+        print(traceback.print_exc(file=dname+".error"))
 
 def experiment(exp):
     if exp <= 15:
