@@ -3,7 +3,7 @@ import sys
 import solver, state, space
 import numpy as np
 import pickle
-import multiprocessing
+#import multiprocessing
 import traceback
 
 def parts(obs):
@@ -58,37 +58,44 @@ def run(typ,rand,sbd,d,tnumber):
         print(traceback.print_exc(file=open(dname+".error","w")))
 
 def experiment(exp):
-    if exp <= 15:
+    if exp <= 600:
         typ = 5
-    elif exp <= 30:
+    elif exp <= 1200:
         typ = 10
-        exp -= 15
+        exp -= 600
     else:
         typ = 2
-        exp -= 30
+        exp -= 1200
         
-    if exp <= 5:
+    if exp <= 200:
         d = 75
-    elif exp <= 10:
+    elif exp <= 400:
         d = 365
-        exp -= 5
+        exp -= 200
     else:
         d = 20
-        exp -= 10
+        exp -= 400
 
-    return typ, d, exp
+    if exp <= 100:
+        rand = True
+    else:
+        rand = False
+        exp -= 100
+
+    if exp <= 50:
+        sbp = True
+    else:
+        sbp = False
+        exp -= 50
+
+    return typ,rand,sbd,d,exp
 
 if __name__ == '__main__':
 
     exp = int(sys.argv[1])
-    typ,d,tp = experiment(exp)
-    jobs = []
-    for rand in range(2):
-        for sbd in range(2):
-            for tnumber in range(4*(tp-1)+1, 4*(tp-1)+5):
-                thr = multiprocessing.Process(target=run, args = (typ,rand,sbd,d,tnumber,))
-                jobs.append(thr)
-                thr.start()
+    typ,rand,sbd,d,tn = experiment(exp)
+    run(typ,rand,sbd,d,tn)
+    
 
 
 
