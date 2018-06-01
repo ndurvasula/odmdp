@@ -73,7 +73,7 @@ def experiment(exp):
         d = 365
         exp -= 200
     else:
-        d = 20
+        d = 25
         exp -= 400
 
     if exp <= 100:
@@ -83,9 +83,9 @@ def experiment(exp):
         exp -= 100
 
     if exp <= 50:
-        sbp = True
+        sbd = True
     else:
-        sbp = False
+        sbd = False
         exp -= 50
 
     return typ,rand,sbd,d,exp
