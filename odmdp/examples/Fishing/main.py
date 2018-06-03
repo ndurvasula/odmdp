@@ -18,16 +18,16 @@ def run(typ,rand,sbd,d,tnumber):
     try:
 
         dname = str(typ)+"_"+str(rand)+"_"+str(sbd)+"_"+str(d)+"_"+str(tnumber)
-        pickle.dump(([[[i for i in range(typ)]]],[[typ]]), open(dname+".bounds","wb"))
-        pickle.dump([],open(dname+"true.state","wb"))
-        pickle.dump([],open(dname+"true.reward","wb"))
+        pickle.dump(([[[i for i in range(typ)]]],[[typ]]), open(dname+".bounds","wb"),-1)
+        pickle.dump([],open(dname+"true.state","wb"),-1)
+        pickle.dump([],open(dname+"true.reward","wb"),-1)
 
         MEANS = np.array([i*1.0/(typ-1) for i in range(typ)])
         STDS = np.array([1.0/(6*(typ-1)) for i in range(typ)])
         if rand:
             MEANS = np.array([np.random.uniform() for i in range(typ)])
 
-        pickle.dump((typ,MEANS,STDS,d), open(dname+"subsolve.dat","wb"))
+        pickle.dump((typ,MEANS,STDS,d), open(dname+"subsolve.dat","wb"),-1)
 
         env = gym.make('fish-v0')
         env.initialize(types=typ,sbdepth=sbd,days=d,means=MEANS,discretize=False,stds=STDS)
@@ -45,14 +45,14 @@ def run(typ,rand,sbd,d,tnumber):
             R= pickle.load(open(dname+"true.reward","rb"))
             S.append(s)
             R.append(r)
-            pickle.dump(S,open(dname+"true.state","wb"))
-            pickle.dump(R,open(dname+"true.reward","wb"))
+            pickle.dump(S,open(dname+"true.state","wb"),-1)
+            pickle.dump(R,open(dname+"true.reward","wb"),-1)
             
             print("ACTUAL FISH:",s)
             print("ACTUAL REWARD",r)
          
         print("FINAL REWARD: ",reward)
-        pickle.dump(reward,open(dname+".final","wb"))
+        pickle.dump(reward,open(dname+".final","wb"),-1)
 
     except:
         print(traceback.print_exc(file=open(dname+".error","w")))

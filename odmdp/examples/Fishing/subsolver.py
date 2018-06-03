@@ -114,8 +114,8 @@ def solve(s0, t0, iters, transition, dname):
     global TYPES, MEANS, STDS
     TYPES, MEANS, STDS, days = pickle.load(open(dname+"subsolve.dat","rb"))
 
-    pickle.dump([],open(dname+"pred.state", "wb"))
-    pickle.dump([],open(dname+"pred.reward", "wb"))
+    pickle.dump([],open(dname+"pred.state", "wb"),-1)
+    pickle.dump([],open(dname+"pred.reward", "wb"),-1)
     
     MAX_EPISODES = 200
     MAX_STEPS = days #How many days we fish for
@@ -184,8 +184,8 @@ def solve(s0, t0, iters, transition, dname):
         R = pickle.load(open(dname+"pred.reward", "rb"))
         S.append(fi)
         R.append(reward)
-        pickle.dump(S,open(dname+"pred.state", "wb"))
-        pickle.dump(R,open(dname+"pred.reward", "wb"))
+        pickle.dump(S,open(dname+"pred.state", "wb"),-1)
+        pickle.dump(R,open(dname+"pred.reward", "wb"),-1)
         if DEBUG:
             print("Predicted fish:",fi)
             print("Predicted reward:",reward)

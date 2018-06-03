@@ -9,8 +9,6 @@ import matplotlib
 import pickle
 import os, shutil
 
-matplotlib.use('Agg')
-
 import matplotlib.pyplot as pb
 
 CHANGE = False
@@ -44,8 +42,8 @@ class Solver():
                 shutil.rmtree(DNAME+"logs/")
                 
             os.makedirs(DNAME+"logs/")
-            pickle.dump([],open(DNAME+"logs/XGP.bin",'wb'))
-            pickle.dump([],open(DNAME+"logs/CGP.bin","wb"))
+            pickle.dump([],open(DNAME+"logs/XGP.bin",'wb'),-1)
+            pickle.dump([],open(DNAME+"logs/CGP.bin","wb"),-1)
         
         self.state = s0
         self.e = e
@@ -176,8 +174,8 @@ class Solver():
             Xs.append(self.XGP)
             Cs.append(self.CGP)
             
-            pickle.dump(Xs,open(DNAME+"logs/XGP.bin",'wb'))
-            pickle.dump(Cs,open(DNAME+"logs/CGP.bin","wb"))
+            pickle.dump(Xs,open(DNAME+"logs/XGP.bin",'wb'),-1)
+            pickle.dump(Cs,open(DNAME+"logs/CGP.bin","wb"),-1)
 
             if PLOT:
                 if not os.path.exists(DNAME+"logs/plots/XGP"):
