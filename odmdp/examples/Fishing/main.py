@@ -41,8 +41,8 @@ def run(typ,rand,sbd,d,tnumber):
             sol.update([parts(s)])
             reward += r
             #input("Continue:")
-            S = pickle.load(open(dname+"true.state","rb"))
-            R= pickle.load(open(dname+"true.reward","rb"))
+            S = pickle.load(open(dname+"true.state","rb"),-1)
+            R= pickle.load(open(dname+"true.reward","rb"),-1)
             S.append(s)
             R.append(r)
             pickle.dump(S,open(dname+"true.state","wb"),-1)

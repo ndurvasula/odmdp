@@ -168,8 +168,8 @@ class Solver():
                 self.CGP[k].optimize()
 
         if LOG and self.t % LOG_STEP == 0:
-            Xs = pickle.load(open(DNAME+"logs/XGP.bin","rb"))
-            Cs = pickle.load(open(DNAME+"logs/CGP.bin","rb"))
+            Xs = pickle.load(open(DNAME+"logs/XGP.bin","rb"),-1)
+            Cs = pickle.load(open(DNAME+"logs/CGP.bin","rb"),-1)
 
             Xs.append(self.XGP)
             Cs.append(self.CGP)
