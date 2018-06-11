@@ -18,6 +18,7 @@ def run(typ,rand,sbd,d,tnumber):
     try:
 
         dname = str(typ)+"_"+str(rand)+"_"+str(sbd)+"_"+str(d)+"_"+str(tnumber)
+        pickle.dump("Success",open(dname,"wb"))
         pickle.dump(([[[i for i in range(typ)]]],[[typ]]), open(dname+".bounds","wb"),-1)
         pickle.dump([],open(dname+"true.state","wb"),-1)
         pickle.dump([],open(dname+"true.reward","wb"),-1)
@@ -45,8 +46,12 @@ def run(typ,rand,sbd,d,tnumber):
             sol.update([parts(s)])
             reward += r
             #input("Continue:")
-            S = pickle.load(open(dname+"true.state","rb"))
-            R= pickle.load(open(dname+"true.reward","rb"))
+            if os.path.getsize(dname+"true.state") > 0 and os.path.getsize(dname+"true.reward") > 0:
+                S = pickle.load(open(dname+"true.state","rb"))
+                R= pickle.load(open(dname+"true.reward","rb"))
+            else:
+                S = []
+                R = []
             S.append(s)
             R.append(r)
             pickle.dump(S,open(dname+"true.state","wb"),-1)

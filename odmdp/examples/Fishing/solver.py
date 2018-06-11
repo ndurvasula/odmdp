@@ -38,8 +38,8 @@ class Solver():
         application.init(DNAME)
 
         if LOG:
-            #if os.path.exists(DNAME+"logs/"):
-                #shutil.rmtree(DNAME+"logs/")
+            if os.path.exists(DNAME+"logs/"):
+                shutil.rmtree(DNAME+"logs/")
                 
             os.makedirs(DNAME+"logs/")
             pickle.dump([],open(DNAME+"logs/XGP.bin",'wb'),-1)
@@ -168,8 +168,12 @@ class Solver():
                 self.CGP[k].optimize()
 
         if LOG and self.t % LOG_STEP == 0:
-            Xs = pickle.load(open(DNAME+"logs/XGP.bin","rb"))
-            Cs = pickle.load(open(DNAME+"logs/CGP.bin","rb"))
+            if os.path.getsize(DNAME+"logs/XGP.bin") > 0 and os.path.getsize(DNAME+"logs/CGP.bin") > 0:
+                Xs = pickle.load(open(DNAME+"logs/XGP.bin","rb"))
+                Cs = pickle.load(open(DNAME+"logs/CGP.bin","rb"))
+            else:
+                Xs = []
+                Cs = []
 
             Xs.append(self.XGP)
             Cs.append(self.CGP)

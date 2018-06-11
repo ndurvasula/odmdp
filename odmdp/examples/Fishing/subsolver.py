@@ -180,8 +180,14 @@ def solve(s0, t0, iters, transition, dname):
             if step == 0:
                 reward = _reward(conv(current.parts[0]), t0)
                 fi = conv(current.parts[0])
-        S = pickle.load(open(dname+"pred.state", "rb"))
-        R = pickle.load(open(dname+"pred.reward", "rb"))
+                
+        if os.path.getsize(dname+"pred.state") > 0 and os.path.getsize(dname+"pred.reward") > 0:
+            S = pickle.load(open(dname+"pred.state", "rb"))
+            R = pickle.load(open(dname+"pred.reward", "rb"))
+        else:
+            S = []
+            R = []
+            
         S.append(fi)
         R.append(reward)
         pickle.dump(S,open(dname+"pred.state", "wb"),-1)
