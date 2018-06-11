@@ -1,5 +1,5 @@
 import gym, gym_fish
-import sys
+import sys, os
 import solver, state, space
 import numpy as np
 import pickle
@@ -28,10 +28,14 @@ def run(typ,rand,sbd,d,tnumber):
             MEANS = np.array([np.random.uniform() for i in range(typ)])
 
         pickle.dump((typ,MEANS,STDS,d), open(dname+"subsolve.dat","wb"),-1)
+        
 
         env = gym.make('fish-v0')
         env.initialize(types=typ,sbdepth=sbd,days=d,means=MEANS,discretize=False,stds=STDS)
 
+        pickle.dump([],open(dname+"true.state","wb"),-1)
+        pickle.dump([],open(dname+"true.reward","wb"),-1)
+        
         reward = 0
         s0 = state.State([parts(env.reset())],dname)
         sol = solver.Solver(s0,.95,1.02,dname)
@@ -41,8 +45,8 @@ def run(typ,rand,sbd,d,tnumber):
             sol.update([parts(s)])
             reward += r
             #input("Continue:")
-            S = pickle.load(open(dname+"true.state","rb"),-1)
-            R= pickle.load(open(dname+"true.reward","rb"),-1)
+            S = pickle.load(open(dname+"true.state","rb"))
+            R= pickle.load(open(dname+"true.reward","rb"))
             S.append(s)
             R.append(r)
             pickle.dump(S,open(dname+"true.state","wb"),-1)

@@ -15,7 +15,7 @@ CHANGE = False
 X_STOCHASTIC = False
 C_STOCHASTIC = True
 LOG = True
-LOG_STEP = 5
+LOG_STEP = 10
 HMC = False
 HMC_SAMPLES = 300
 DEBUG = True
@@ -168,8 +168,8 @@ class Solver():
                 self.CGP[k].optimize()
 
         if LOG and self.t % LOG_STEP == 0:
-            Xs = pickle.load(open(DNAME+"logs/XGP.bin","rb"),-1)
-            Cs = pickle.load(open(DNAME+"logs/CGP.bin","rb"),-1)
+            Xs = pickle.load(open(DNAME+"logs/XGP.bin","rb"))
+            Cs = pickle.load(open(DNAME+"logs/CGP.bin","rb"))
 
             Xs.append(self.XGP)
             Cs.append(self.CGP)
