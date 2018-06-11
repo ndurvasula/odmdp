@@ -1,10 +1,10 @@
-print("Importing...")
+#print("Importing...")
 import tensorflow as tf
 import numpy as np
 from state import *
 from scipy.stats import norm
-import pickle
-print("Starting...")
+import pickle, os
+#print("Starting...")
 
 class QNetwork(object):
     """
@@ -89,7 +89,7 @@ MAX = 3 #Best possible fish price
 PERIOD = 365.0 #Time for pricing cycle to repeat itself
 K = .2 #Spread factor
 TYPES = 5
-DEBUG = True
+DEBUG = False
 
 #Fish locations
 MEANS = np.array([i*1.0/(TYPES-1) for i in range(TYPES)])

@@ -18,7 +18,7 @@ LOG = True
 LOG_STEP = 10
 HMC = False
 HMC_SAMPLES = 300
-DEBUG = True
+DEBUG = False
 PLOT = False
 DNAME = ""
 

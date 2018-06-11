@@ -56,14 +56,14 @@ def run(typ,rand,sbd,d,tnumber):
             pickle.dump(S,open(dname+"true.state","wb"),-1)
             pickle.dump(R,open(dname+"true.reward","wb"),-1)
             
-            print("ACTUAL FISH:",s)
-            print("ACTUAL REWARD",r)
+            #print("ACTUAL FISH:",s)
+            #print("ACTUAL REWARD",r)
          
-        print("FINAL REWARD: ",reward)
+        #print("FINAL REWARD: ",reward)
         pickle.dump(reward,open(dname+".final","wb"),-1)
 
     except:
-        print(traceback.print_exc(file=open(dname+".error","w")))
+        traceback.print_exc(file=open(dname+".error","w"))
 
 def experiment(exp):
     if exp <= 600:
