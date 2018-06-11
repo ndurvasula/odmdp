@@ -38,8 +38,8 @@ class Solver():
         application.init(DNAME)
 
         if LOG:
-            if os.path.exists(DNAME+"logs/"):
-                shutil.rmtree(DNAME+"logs/")
+            #if os.path.exists(DNAME+"logs/"):
+                #shutil.rmtree(DNAME+"logs/")
                 
             os.makedirs(DNAME+"logs/")
             pickle.dump([],open(DNAME+"logs/XGP.bin",'wb'),-1)
