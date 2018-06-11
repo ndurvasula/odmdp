@@ -2,7 +2,7 @@ import gym, gym_fish
 import sys, os
 import solver, state, space
 import numpy as np
-import pickle
+import pickle, random
 #import multiprocessing
 import traceback
 
@@ -18,7 +18,7 @@ def run(typ,rand,sbd,d,tnumber):
     try:
 
         dname = str(typ)+"_"+str(rand)+"_"+str(sbd)+"_"+str(d)+"_"+str(tnumber)
-        pickle.dump("Success",open(dname,"wb"))
+        pickle.dump("Success",open(dname+str(random.randint(0,1000)),"wb"))
         pickle.dump(([[[i for i in range(typ)]]],[[typ]]), open(dname+".bounds","wb"),-1)
         pickle.dump([],open(dname+"true.state","wb"),-1)
         pickle.dump([],open(dname+"true.reward","wb"),-1)
